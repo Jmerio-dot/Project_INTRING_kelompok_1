@@ -2,7 +2,7 @@
 // Ganti ke port 8000 (Django) atau 3000 (Node.js)
 // Django backend: http://localhost:8000/api
 // Node.js backend: http://localhost:3000/api
-const API = 'http://localhost:8000/api';
+const API = '/api';
 
 function getToken() { return localStorage.getItem('ie_token'); }
 function getUser()  { try { return JSON.parse(localStorage.getItem('ie_user')); } catch { return null; } }
