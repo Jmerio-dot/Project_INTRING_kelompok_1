@@ -3,15 +3,218 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Intelligence Engineering – Next Generation AI Technology</title>
-  <meta name="description" content="Pioneering the future with Artificial Intelligence, Machine Learning, and Quantum Computing." />
-  <link rel="stylesheet" href="styles.css" />
+  <title>Intelligence Engineering – Manajemen Proyek Cerdas</title>
+  <meta name="description" content="Platform terpadu untuk merancang dan mengelola proyek sistem cerdas." />
+  <link rel="stylesheet" href="app-theme.css" />
   <style>
-    .adv-tech { background: var(--bg-secondary); }
-    .card-overlay { position: relative; }
-    .card-overlay .card-icon-badge { position: absolute; top: 0.75rem; right: 0.75rem; margin: 0; }
-    .card-overlay .card-img-wrap { position: relative; }
-    .tech-card-img { width: 100%; height: 180px; object-fit: cover; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: var(--gradient-bg); }
+    /* Global Overrides for Landing Page */
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 4rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--ocean);
+      text-decoration: none;
+    }
+    .nav-brand-icon {
+      background: var(--gradient2);
+      color: white;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text2);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--cyan);
+    }
+    .btn-nav {
+      background: var(--gradient2);
+      color: white;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-nav:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 5rem;
+      background: radial-gradient(circle at center, #ffffff 0%, var(--bg) 100%);
+    }
+    .hero-badge {
+      background: #e0f2fe;
+      color: var(--ocean);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      border: 1px solid #bae6fd;
+    }
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .hero-title span {
+      background: var(--gradient2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--text2);
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn-primary-lg {
+      background: var(--gradient2);
+      color: white;
+      padding: 0.85rem 2rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s;
+    }
+    .btn-primary-lg:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,119,182,0.3);
+    }
+    
+    /* Features Section */
+    .features {
+      padding: 5rem 4rem;
+      background: white;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .section-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--ocean);
+      margin-bottom: 1rem;
+    }
+    .section-subtitle {
+      color: var(--text2);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      border-radius: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--cyan);
+    }
+    .f-icon {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--cyan);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+    .f-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--ocean);
+      margin-bottom: 0.75rem;
+    }
+    .f-desc {
+      color: var(--text2);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--ocean);
+      color: white;
+      padding: 3rem 4rem;
+      text-align: center;
+    }
+    .footer p {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -23,185 +226,57 @@
     Intelligence Engineering
   </a>
   <ul class="nav-links">
-    <li><a href="index.html" class="active">Home</a></li>
-    <li><a href="about.html">About Us</a></li>
-    <li><a href="services.html">Services</a></li>
-    <li><a href="upload.html">Upload Project</a></li>
+    <li><a href="index.html" class="active">Beranda</a></li>
+    <li><a href="about.html">Tentang Kami</a></li>
   </ul>
   <div class="nav-actions">
-    <button class="nav-search">🔍</button>
-    <a href="login.html" class="btn-nav">👤 Pengguna Demo</a>
+    <a href="login.html" class="btn-nav">Masuk ke Dashboard</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-content fade-up">
-    <div class="hero-badge">⚡ Next Generation AI Technology</div>
-    <h1 class="hero-title">
-      Intelligence<br><span>Engineering</span>
-    </h1>
-    <p class="hero-sub">
-      Pioneering the future with <strong>Artificial Intelligence</strong>, <strong style="color:#8b5cf6;">Machine Learning</strong>, and<br>
-      <strong style="color:#a78bfa;">Quantum Computing</strong>
-    </p>
-    <div class="hero-actions">
-      <a href="services.html" class="btn-primary">⚡ Explore Now →</a>
-      <a href="#demo" class="btn-outline">▶ Watch Demo</a>
+  <div class="hero-badge">🚀 Platform Manajemen Sistem Cerdas</div>
+  <h1 class="hero-title">
+    Rancang & Kelola<br><span>Proyek AI Anda</span>
+  </h1>
+  <p class="hero-sub">
+    Platform terpadu untuk merancang siklus hidup proyek kecerdasan buatan, 
+    mengelola sprint tim, melacak issue, dan membuat pelaporan (transcript) secara sistematis.
+  </p>
+  <div class="hero-actions">
+    <a href="login.html" class="btn-primary-lg">Mulai Sekarang →</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-header">
+    <h2 class="section-title">Fitur Utama</h2>
+    <p class="section-subtitle">Semua yang Anda butuhkan untuk menyelesaikan proyek rekayasa kecerdasan dengan efisien.</p>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="f-icon">📋</div>
+      <h3 class="f-title">Kanban Board Interaktif</h3>
+      <p class="f-desc">Lacak progres pekerjaan tim Anda secara visual menggunakan sistem kanban *drag-and-drop* yang modern dan intuitif.</p>
     </div>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="hero-stat-number">99.9%</div>
-        <div class="hero-stat-label">AI Accuracy</div>
-      </div>
-      <div class="stat">
-        <div class="hero-stat-number">500+</div>
-        <div class="hero-stat-label">Projects</div>
-      </div>
-      <div class="stat">
-        <div class="hero-stat-number">50+</div>
-        <div class="hero-stat-label">Global Clients</div>
-      </div>
-      <div class="stat">
-        <div class="hero-stat-number">24/7</div>
-        <div class="hero-stat-label">Support</div>
-      </div>
+    <div class="feature-card">
+      <div class="f-icon">🎯</div>
+      <h3 class="f-title">Sprint & Backlog</h3>
+      <p class="f-desc">Rencanakan sprint proyek Anda dengan akurat. Kelola backlog issue dan distribusikan tugas kepada anggota tim secara real-time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="f-icon">📄</div>
+      <h3 class="f-title">Manajemen Transkrip</h3>
+      <p class="f-desc">Hasilkan dan unduh laporan perancangan (transcript) lengkap dalam format PDF secara otomatis dari isian *Intelligence Objectives*.</p>
     </div>
   </div>
 </section>
 
-<!-- ADVANCED TECHNOLOGIES -->
-<section class="section adv-tech" id="technologies">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title gradient">Advanced Technologies</h2>
-      <p class="section-subtitle">Cutting-edge solutions for the digital age</p>
-    </div>
-    <div class="grid-3">
-      <!-- Card 1 -->
-      <div class="card card-overlay">
-        <div class="card-img-wrap">
-          <div class="tech-card-img">🌀</div>
-          <div class="card-icon-badge" style="background: linear-gradient(135deg,#00d4ff,#0080ff);">⚡</div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Quantum Processing</div>
-          <div class="card-desc">Harness the power of quantum computing for exponential performance.</div>
-        </div>
-      </div>
-      <!-- Card 2 -->
-      <div class="card card-overlay">
-        <div class="card-img-wrap">
-          <div class="tech-card-img">🛡️</div>
-          <div class="card-icon-badge" style="background: linear-gradient(135deg,#8b5cf6,#6d28d9);">🔒</div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Neural Security</div>
-          <div class="card-desc">AI-powered security systems that learn and adapt to threats.</div>
-        </div>
-      </div>
-      <!-- Card 3 -->
-      <div class="card card-overlay">
-        <div class="card-img-wrap">
-          <div class="tech-card-img">🧠</div>
-          <div class="card-icon-badge" style="background: linear-gradient(135deg,#f59e0b,#d97706);">🤖</div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Deep Learning</div>
-          <div class="card-desc">Multi-layer neural networks for complex pattern recognition.</div>
-        </div>
-      </div>
-      <!-- Card 4 -->
-      <div class="card card-overlay">
-        <div class="card-img-wrap">
-          <div class="tech-card-img">🌐</div>
-          <div class="card-icon-badge" style="background: linear-gradient(135deg,#10b981,#059669);">🌏</div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Global Network</div>
-          <div class="card-desc">Distributed AI systems scaled worldwide in real-time.</div>
-        </div>
-      </div>
-      <!-- Card 5 -->
-      <div class="card card-overlay">
-        <div class="card-img-wrap">
-          <div class="tech-card-img">📊</div>
-          <div class="card-icon-badge" style="background: linear-gradient(135deg,#ec4899,#db2777);">📈</div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Predictive Analytics</div>
-          <div class="card-desc">Future-proof insights with advanced forecasting algorithms.</div>
-        </div>
-      </div>
-      <!-- Card 6 -->
-      <div class="card card-overlay">
-        <div class="card-img-wrap">
-          <div class="tech-card-img">🤖</div>
-          <div class="card-icon-badge" style="background: linear-gradient(135deg,#f97316,#ea580c);">⚙️</div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Autonomous Systems</div>
-          <div class="card-desc">Self-learning robots and intelligent autonomous platforms.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-section" id="demo">
-  <div class="container">
-    <h2>Ready to Build the Future?</h2>
-    <p>Join the AI revolution with Intelligence Engineering</p>
-    <a href="about.html" class="btn-primary">👥 Meet Our Team →</a>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand"><span style="font-size:1.2rem;">⚡</span> Intelligence Engineering</div>
-      <p class="footer-desc">Empowering businesses with innovative technology solutions for the modern world.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Product</h4>
-      <ul>
-        <li><a href="#">Features</a></li>
-        <li><a href="#">Pricing</a></li>
-        <li><a href="#">Security</a></li>
-        <li><a href="#">Roadmap</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Company</h4>
-      <ul>
-        <li><a href="about.html">About</a></li>
-        <li><a href="#">Blog</a></li>
-        <li><a href="#">Careers</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <ul>
-        <li><a href="#">Privacy</a></li>
-        <li><a href="#">Terms</a></li>
-        <li><a href="#">Cookies</a></li>
-        <li><a href="#">Licenses</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">© 2026 Intelligence Engineering. All rights reserved.</div>
+<footer class="footer">
+  <p>&copy; 2026 Intelligence Engineering - Kelompok 1. Hak Cipta Dilindungi.</p>
 </footer>
 
-<script>
-  // Intersection observer for fade-up animations
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('fade-up'); } });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.card, .stat').forEach(el => observer.observe(el));
-</script>
 </body>
 </html>

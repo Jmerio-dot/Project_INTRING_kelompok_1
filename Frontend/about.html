@@ -3,18 +3,190 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Us – Intelligence Engineering</title>
-  <meta name="description" content="Learn about the visionary leaders and mission driving Intelligence Engineering forward." />
-  <link rel="stylesheet" href="styles.css" />
+  <title>Tentang Kami – Intelligence Engineering</title>
+  <meta name="description" content="Tentang tim pengembang di balik platform Intelligence Engineering." />
+  <link rel="stylesheet" href="app-theme.css" />
   <style>
-    .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
-    @media (max-width: 768px) { .mission-grid { grid-template-columns: 1fr; } }
-    .mission-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .mission-photo { border-radius: 12px; overflow: hidden; background: var(--gradient-bg); height: 150px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; }
-    .mission-text p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; font-size: 0.9rem; }
-    .mission-text strong { color: var(--cyan); }
-    .mission-label { display: flex; align-items: center; gap: 0.6rem; font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem; }
-    .mission-label-icon { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg,#00d4ff,#0080ff); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+    }
+    
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 4rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--ocean);
+      text-decoration: none;
+    }
+    .nav-brand-icon {
+      background: var(--gradient2);
+      color: white;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text2);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--cyan);
+    }
+    .btn-nav {
+      background: var(--gradient2);
+      color: white;
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-nav:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* About Header */
+    .about-header {
+      text-align: center;
+      padding: 5rem 2rem;
+      background: white;
+      border-bottom: 1px solid var(--border);
+    }
+    .about-title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--ocean);
+      margin-bottom: 1rem;
+    }
+    .about-subtitle {
+      font-size: 1.1rem;
+      color: var(--text2);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Team Section */
+    .team-section {
+      padding: 5rem 4rem;
+      text-align: center;
+    }
+    .team-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--ocean);
+      margin-bottom: 3rem;
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .team-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .team-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--cyan);
+    }
+    .team-avatar {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient2);
+      border-radius: 50%;
+      margin: 0 auto 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+    .team-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .team-role {
+      font-size: 0.85rem;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .team-nim {
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: var(--bg);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid var(--border);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--ocean);
+      color: white;
+      padding: 3rem 4rem;
+      text-align: center;
+    }
+    .footer p {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1000px) {
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .team-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -26,201 +198,63 @@
     Intelligence Engineering
   </a>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="about.html" class="active">About Us</a></li>
-    <li><a href="services.html">Services</a></li>
-    <li><a href="upload.html">Upload Project</a></li>
+    <li><a href="index.html">Beranda</a></li>
+    <li><a href="about.html" class="active">Tentang Kami</a></li>
   </ul>
   <div class="nav-actions">
-    <button class="nav-search">🔍</button>
-    <a href="login.html" class="btn-nav">👤 Pengguna Demo</a>
+    <a href="login.html" class="btn-nav">Masuk ke Dashboard</a>
   </div>
 </nav>
 
-<!-- PAGE HERO -->
-<div class="page-hero">
-  <div class="page-hero-bg"></div>
-  <div class="page-hero-content">
-    <h1 class="page-hero-title gradient">About Us</h1>
-    <p class="page-hero-sub">Pioneering the future of intelligent systems</p>
-  </div>
-</div>
+<!-- ABOUT HEADER -->
+<section class="about-header">
+  <h1 class="about-title">Misi Kami</h1>
+  <p class="about-subtitle">
+    Kami membangun <strong>Intelligence Engineering</strong> untuk menyederhanakan kompleksitas 
+    dalam perancangan sistem berbasis Artificial Intelligence. Melalui platform terpadu ini, 
+    tim pengembang dapat merencanakan objektif (Objectives), mengelola sprint, melacak bug (Issues), 
+    hingga mencetak dokumen perancangan secara transparan dan efisien.
+  </p>
+</section>
 
-<!-- OUR MISSION -->
-<section class="section">
-  <div class="container">
-    <div class="mission-grid">
-      <div class="mission-text">
-        <div class="mission-label">
-          <div class="mission-label-icon">🌐</div>
-          Our Mission
-        </div>
-        <p>At <strong>Intelligence Engineering</strong>, we are committed to revolutionizing the way businesses leverage artificial intelligence and machine learning technologies.</p>
-        <p>Our mission is to <strong>democratize access</strong> to cutting-edge AI solutions, making it more accessible, reliable, and transformative for organizations of all sizes.</p>
-        <p>We believe in creating technology that not only solves today's challenges but anticipates tomorrow's opportunities, driving precision and sustainable growth across industries.</p>
-      </div>
-      <div class="mission-photos">
-        <div class="mission-photo">👨‍💻</div>
-        <div class="mission-photo">🤖</div>
-        <div class="mission-photo">💡</div>
-        <div class="mission-photo">🔬</div>
-      </div>
+<!-- TEAM SECTION -->
+<section class="team-section">
+  <h2 class="team-title">Meet Our Founders</h2>
+  <div class="team-grid">
+    
+    <div class="team-card">
+      <div class="team-avatar">F</div>
+      <h3 class="team-name">Fadhil Ramadhan</h3>
+      <div class="team-role">Founder & Engineer</div>
+      <div class="team-nim">NIM: 064102400010</div>
     </div>
+
+    <div class="team-card">
+      <div class="team-avatar">A</div>
+      <h3 class="team-name">Agnar Raka</h3>
+      <div class="team-role">Founder & Engineer</div>
+      <div class="team-nim">NIM: 064102400014</div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-avatar">S</div>
+      <h3 class="team-name">Satria Putra</h3>
+      <div class="team-role">Founder & Engineer</div>
+      <div class="team-nim">NIM: 064102400009</div>
+    </div>
+
+    <div class="team-card">
+      <div class="team-avatar">R</div>
+      <h3 class="team-name">Rizal Gusti</h3>
+      <div class="team-role">Founder & Engineer</div>
+      <div class="team-nim">NIM: 064102400031</div>
+    </div>
+
   </div>
 </section>
 
-<!-- VALUES -->
-<section class="section" style="padding-top:0;">
-  <div class="container">
-    <div class="values-grid">
-      <div class="value-card">
-        <div class="value-icon">🚀</div>
-        <div class="value-title">Vision</div>
-        <div class="value-desc">Leading global innovation</div>
-      </div>
-      <div class="value-card">
-        <div class="value-icon">🏆</div>
-        <div class="value-title">Excellence</div>
-        <div class="value-desc">Uncompromising quality</div>
-      </div>
-      <div class="value-card">
-        <div class="value-icon">🤝</div>
-        <div class="value-title">Collaboration</div>
-        <div class="value-desc">Team-driven success</div>
-      </div>
-      <div class="value-card">
-        <div class="value-icon">💡</div>
-        <div class="value-title">Innovation</div>
-        <div class="value-desc">Future-forward thinking</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- MEET OUR FOUNDERS -->
-<section class="section" style="background: var(--bg-secondary);">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title gradient">Meet Our Founders</h2>
-      <p class="section-subtitle">Visionary leaders shaping the future of AI</p>
-    </div>
-    <div class="grid-4">
-      <div class="founder-card">
-        <div class="founder-avatar">👨‍💼</div>
-        <div class="founder-body">
-          <div class="founder-name">Muhammad Fadhil Ramadhan</div>
-          <div class="founder-role">Chief Technology Officer</div>
-          <div class="founder-desc">Technology visionary with expertise in AI systems, distributed computing, and scalable architecture.</div>
-          <div class="founder-socials">
-            <a href="#" class="social-btn">in</a>
-            <a href="#" class="social-btn">𝕏</a>
-            <a href="#" class="social-btn">gh</a>
-          </div>
-        </div>
-      </div>
-      <div class="founder-card">
-        <div class="founder-avatar">👨‍🔬</div>
-        <div class="founder-body">
-          <div class="founder-name">Agnar Raka Baskara</div>
-          <div class="founder-role" style="color:#8b5cf6;">Chief Technology Officer</div>
-          <div class="founder-desc">AI researcher specializing in machine learning, neural networks, and deep learning frameworks.</div>
-          <div class="founder-socials">
-            <a href="#" class="social-btn">in</a>
-            <a href="#" class="social-btn">𝕏</a>
-            <a href="#" class="social-btn">gh</a>
-          </div>
-        </div>
-      </div>
-      <div class="founder-card">
-        <div class="founder-avatar">👨‍💻</div>
-        <div class="founder-body">
-          <div class="founder-name">Satria Putra</div>
-          <div class="founder-role">Chief Operations Officer</div>
-          <div class="founder-desc">Operations strategist focused on quality delivery and customer-first solutions.</div>
-          <div class="founder-socials">
-            <a href="#" class="social-btn">in</a>
-            <a href="#" class="social-btn">𝕏</a>
-            <a href="#" class="social-btn">gh</a>
-          </div>
-        </div>
-      </div>
-      <div class="founder-card">
-        <div class="founder-avatar">🧑‍🚀</div>
-        <div class="founder-body">
-          <div class="founder-name">Gusty</div>
-          <div class="founder-role" style="color:#f59e0b;">Chief Innovation Officer</div>
-          <div class="founder-desc">Innovation champion building cutting-edge solutions for billion-dollar industries.</div>
-          <div class="founder-socials">
-            <a href="#" class="social-btn">in</a>
-            <a href="#" class="social-btn">𝕏</a>
-            <a href="#" class="social-btn">gh</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- COMPANY STATS -->
-<section class="section">
-  <div class="container">
-    <div class="stats-row">
-      <div class="stat">
-        <div class="stat-number">2020</div>
-        <div class="stat-label">Founded</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">4</div>
-        <div class="stat-label">Co-Founders</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">100+</div>
-        <div class="stat-label">Team Members</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">25+</div>
-        <div class="stat-label">Countries</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand"><span style="font-size:1.2rem;">⚡</span> Intelligence Engineering</div>
-      <p class="footer-desc">Empowering businesses with innovative technology solutions for the modern world.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Product</h4>
-      <ul>
-        <li><a href="#">Features</a></li>
-        <li><a href="#">Pricing</a></li>
-        <li><a href="#">Security</a></li>
-        <li><a href="#">Roadmap</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Company</h4>
-      <ul>
-        <li><a href="about.html">About</a></li>
-        <li><a href="#">Blog</a></li>
-        <li><a href="#">Careers</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <ul>
-        <li><a href="#">Privacy</a></li>
-        <li><a href="#">Terms</a></li>
-        <li><a href="#">Cookies</a></li>
-        <li><a href="#">Licenses</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">© 2026 Intelligence Engineering. All rights reserved.</div>
+<footer class="footer">
+  <p>&copy; 2026 Intelligence Engineering - Kelompok 1. Hak Cipta Dilindungi.</p>
 </footer>
 
 </body>
