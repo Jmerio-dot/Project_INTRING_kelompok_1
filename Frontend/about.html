@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us – Intelligence Engineering</title>
+  <meta name="description" content="Learn about the visionary leaders and mission driving Intelligence Engineering forward." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+    @media (max-width: 768px) { .mission-grid { grid-template-columns: 1fr; } }
+    .mission-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .mission-photo { border-radius: 12px; overflow: hidden; background: var(--gradient-bg); height: 150px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; }
+    .mission-text p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; font-size: 0.9rem; }
+    .mission-text strong { color: var(--cyan); }
+    .mission-label { display: flex; align-items: center; gap: 0.6rem; font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem; }
+    .mission-label-icon { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg,#00d4ff,#0080ff); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand-icon">⚡</div>
+    Intelligence Engineering
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html" class="active">About Us</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="upload.html">Upload Project</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="nav-search">🔍</button>
+    <a href="login.html" class="btn-nav">👤 Pengguna Demo</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-content">
+    <h1 class="page-hero-title gradient">About Us</h1>
+    <p class="page-hero-sub">Pioneering the future of intelligent systems</p>
+  </div>
+</div>
+
+<!-- OUR MISSION -->
+<section class="section">
+  <div class="container">
+    <div class="mission-grid">
+      <div class="mission-text">
+        <div class="mission-label">
+          <div class="mission-label-icon">🌐</div>
+          Our Mission
+        </div>
+        <p>At <strong>Intelligence Engineering</strong>, we are committed to revolutionizing the way businesses leverage artificial intelligence and machine learning technologies.</p>
+        <p>Our mission is to <strong>democratize access</strong> to cutting-edge AI solutions, making it more accessible, reliable, and transformative for organizations of all sizes.</p>
+        <p>We believe in creating technology that not only solves today's challenges but anticipates tomorrow's opportunities, driving precision and sustainable growth across industries.</p>
+      </div>
+      <div class="mission-photos">
+        <div class="mission-photo">👨‍💻</div>
+        <div class="mission-photo">🤖</div>
+        <div class="mission-photo">💡</div>
+        <div class="mission-photo">🔬</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🚀</div>
+        <div class="value-title">Vision</div>
+        <div class="value-desc">Leading global innovation</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🏆</div>
+        <div class="value-title">Excellence</div>
+        <div class="value-desc">Uncompromising quality</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🤝</div>
+        <div class="value-title">Collaboration</div>
+        <div class="value-desc">Team-driven success</div>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">💡</div>
+        <div class="value-title">Innovation</div>
+        <div class="value-desc">Future-forward thinking</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEET OUR FOUNDERS -->
+<section class="section" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title gradient">Meet Our Founders</h2>
+      <p class="section-subtitle">Visionary leaders shaping the future of AI</p>
+    </div>
+    <div class="grid-4">
+      <div class="founder-card">
+        <div class="founder-avatar">👨‍💼</div>
+        <div class="founder-body">
+          <div class="founder-name">Muhammad Fadhil Ramadhan</div>
+          <div class="founder-role">Chief Technology Officer</div>
+          <div class="founder-desc">Technology visionary with expertise in AI systems, distributed computing, and scalable architecture.</div>
+          <div class="founder-socials">
+            <a href="#" class="social-btn">in</a>
+            <a href="#" class="social-btn">𝕏</a>
+            <a href="#" class="social-btn">gh</a>
+          </div>
+        </div>
+      </div>
+      <div class="founder-card">
+        <div class="founder-avatar">👨‍🔬</div>
+        <div class="founder-body">
+          <div class="founder-name">Agnar Raka Baskara</div>
+          <div class="founder-role" style="color:#8b5cf6;">Chief Technology Officer</div>
+          <div class="founder-desc">AI researcher specializing in machine learning, neural networks, and deep learning frameworks.</div>
+          <div class="founder-socials">
+            <a href="#" class="social-btn">in</a>
+            <a href="#" class="social-btn">𝕏</a>
+            <a href="#" class="social-btn">gh</a>
+          </div>
+        </div>
+      </div>
+      <div class="founder-card">
+        <div class="founder-avatar">👨‍💻</div>
+        <div class="founder-body">
+          <div class="founder-name">Satria Putra</div>
+          <div class="founder-role">Chief Operations Officer</div>
+          <div class="founder-desc">Operations strategist focused on quality delivery and customer-first solutions.</div>
+          <div class="founder-socials">
+            <a href="#" class="social-btn">in</a>
+            <a href="#" class="social-btn">𝕏</a>
+            <a href="#" class="social-btn">gh</a>
+          </div>
+        </div>
+      </div>
+      <div class="founder-card">
+        <div class="founder-avatar">🧑‍🚀</div>
+        <div class="founder-body">
+          <div class="founder-name">Gusty</div>
+          <div class="founder-role" style="color:#f59e0b;">Chief Innovation Officer</div>
+          <div class="founder-desc">Innovation champion building cutting-edge solutions for billion-dollar industries.</div>
+          <div class="founder-socials">
+            <a href="#" class="social-btn">in</a>
+            <a href="#" class="social-btn">𝕏</a>
+            <a href="#" class="social-btn">gh</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPANY STATS -->
+<section class="section">
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-number">2020</div>
+        <div class="stat-label">Founded</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">4</div>
+        <div class="stat-label">Co-Founders</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">100+</div>
+        <div class="stat-label">Team Members</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">25+</div>
+        <div class="stat-label">Countries</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand"><span style="font-size:1.2rem;">⚡</span> Intelligence Engineering</div>
+      <p class="footer-desc">Empowering businesses with innovative technology solutions for the modern world.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Cookies</a></li>
+        <li><a href="#">Licenses</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Intelligence Engineering. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

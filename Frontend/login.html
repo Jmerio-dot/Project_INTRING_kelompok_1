@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Masuk – Intelligence Engineering</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; }
+
+    /* ── LAYOUT ── */
+    .login-page {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      flex: 1.1;
+      background: linear-gradient(160deg, #023e8a 0%, #0077b6 35%, #0096c7 60%, #48cae4 85%, #90e0ef 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      padding: 3rem;
+    }
+
+    /* Floating decorative circles */
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      top: -150px; left: -150px;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 350px; height: 350px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      bottom: -100px; right: -80px;
+    }
+
+    .left-deco-1 {
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      bottom: 120px; left: 60px;
+    }
+    .left-deco-2 {
+      position: absolute;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.15);
+      top: 80px; right: 60px;
+    }
+    .left-deco-3 {
+      position: absolute;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: rgba(144,224,239,0.25);
+      top: 200px; left: 80px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand-icon {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.75rem;
+      animation: fadeInUp 0.6s ease forwards;
+      position: relative; z-index: 1;
+    }
+    .left-title {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      position: relative; z-index: 1;
+      animation: fadeInUp 0.7s ease forwards;
+    }
+    .left-title span {
+      color: #caf0f8;
+    }
+    .left-sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.82);
+      text-align: center;
+      line-height: 1.7;
+      max-width: 340px;
+      position: relative; z-index: 1;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .features-list {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      position: relative; z-index: 1;
+      animation: fadeInUp 0.9s ease forwards;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.875rem;
+    }
+    .feature-dot {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      flex: 0.9;
+      background: #f0f7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .form-box {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .form-header {
+      margin-bottom: 2rem;
+    }
+    .form-header h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #023e8a;
+      margin-bottom: 0.35rem;
+    }
+    .form-header p {
+      font-size: 0.875rem;
+      color: #5a7fa8;
+    }
+
+    /* TABS */
+    .tab-row {
+      display: flex;
+      background: #deeeff;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 1.75rem;
+      gap: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.55rem;
+      text-align: center;
+      border: none;
+      background: transparent;
+      color: #5a7fa8;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #0077b6, #48cae4);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,119,182,0.35);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* FORM ELEMENTS */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1a4a7a;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute;
+      left: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+    .form-input {
+      width: 100%;
+      background: #fff;
+      border: 1.5px solid #b8d8f0;
+      border-radius: 10px;
+      color: #0d2d4a;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      padding: 0.7rem 1rem 0.7rem 2.6rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input::placeholder { color: #8ab2cc; }
+    .form-input:focus {
+      border-color: #0096c7;
+      box-shadow: 0 0 0 3px rgba(0,150,199,0.15);
+    }
+    .btn-show-pass {
+      position: absolute;
+      right: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; font-size: 0.95rem;
+      color: #8ab2cc;
+    }
+
+    /* EXTRAS */
+    .login-extras {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.5rem 0 1.25rem;
+    }
+    .check-label {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.8rem; color: #5a7fa8; cursor: pointer;
+    }
+    .check-label input { accent-color: #0077b6; }
+    .forgot-link {
+      font-size: 0.8rem; color: #0077b6;
+      text-decoration: none; font-weight: 500;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* SUBMIT BUTTON */
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #023e8a 0%, #0077b6 50%, #0096c7 100%);
+      border: none; border-radius: 10px;
+      color: #fff; font-size: 0.95rem; font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      padding: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 6px 20px rgba(0,119,182,0.4);
+    }
+    .btn-submit:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,119,182,0.5); }
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    /* DIVIDER */
+    .divider {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin: 1.25rem 0; color: #8ab2cc; font-size: 0.78rem;
+    }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:#c8def0; }
+
+    /* REGISTER LINK */
+    .switch-link {
+      text-align: center; font-size: 0.82rem; color: #5a7fa8; margin-top: 1.1rem;
+    }
+    .switch-link a { color: #0077b6; font-weight: 600; text-decoration: none; }
+    .switch-link a:hover { text-decoration: underline; }
+
+    /* TERMS */
+    .terms-text {
+      text-align: center; font-size: 0.72rem; color: #8ab2cc; margin-top: 1.5rem;
+    }
+    .terms-text a { color: #0077b6; text-decoration: none; }
+    .demo-hint {
+      background: linear-gradient(135deg, #e8f4ff, #caf0f8);
+      border: 1px solid #90e0ef;
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      font-size: 0.78rem;
+      color: #0077b6;
+      margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    /* ERROR */
+    .form-error {
+      background: #fff0f0; border: 1px solid #fca5a5;
+      border-radius: 8px; padding: 0.6rem 0.85rem;
+      font-size: 0.8rem; color: #dc2626; margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .left-panel { display: none; }
+      .right-panel { flex: 1; background: linear-gradient(160deg, #e8f4ff, #caf0f8); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-page">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="left-deco-1"></div>
+    <div class="left-deco-2"></div>
+    <div class="left-deco-3"></div>
+
+    <div class="brand-icon">⚡</div>
+    <div class="left-title">Intelligence<br><span>Engineering</span></div>
+    <p class="left-sub">Platform manajemen proyek AI terpadu — kelola tim, sprint, dan issue dalam satu tempat.</p>
+
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-dot">📋</div>
+        Kanban Board dengan Drag & Drop
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">🏃</div>
+        Manajemen Sprint & Backlog
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">🐛</div>
+        Lacak Issues, Bug & Story
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">👥</div>
+        Kolaborasi Tim Real-time
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">📊</div>
+        Dashboard & Analitik Proyek
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="form-box">
+
+      <div class="form-header">
+        <h2 id="form-title">Selamat Datang 👋</h2>
+        <p id="form-sub">Masuk ke akun Anda untuk melanjutkan</p>
+      </div>
+
+      <!-- TABS -->
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-login-btn" onclick="switchTab('login')">Masuk</button>
+        <button class="tab-btn" id="tab-reg-btn" onclick="switchTab('register')">Daftar</button>
+      </div>
+
+      <!-- ── LOGIN TAB ── -->
+      <div id="tab-login" class="tab-panel active">
+        <div class="demo-hint">
+          💡 Demo: <strong>demo@intring.ai</strong> / <strong>demo123</strong>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input id="login-email" type="email" class="form-input" placeholder="nama@email.com" value="demo@intring.ai" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="login-pass" type="password" class="form-input" placeholder="Kata sandi Anda" value="demo123" autocomplete="current-password" required />
+              <button type="button" class="btn-show-pass" onclick="togglePass('login-pass', this)">👁️</button>
+            </div>
+          </div>
+
+          <div class="login-extras">
+            <label class="check-label">
+              <input type="checkbox" checked /> Ingat saya
+            </label>
+            <a href="#" class="forgot-link">Lupa kata sandi?</a>
+          </div>
+
+          <div class="form-error" id="login-error"></div>
+
+          <button type="submit" class="btn-submit" id="login-btn">Masuk →</button>
+        </form>
+
+        <p class="switch-link">Belum punya akun? <a onclick="switchTab('register')" href="#">Daftar sekarang</a></p>
+      </div>
+
+      <!-- ── REGISTER TAB ── -->
+      <div id="tab-register" class="tab-panel">
+        <form id="register-form" onsubmit="handleRegister(event)" novalidate>
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <div class="input-wrap">
+              <span class="input-icon">🧑</span>
+              <input id="reg-name" type="text" class="form-input" placeholder="Nama lengkap Anda" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input id="reg-email" type="email" class="form-input" placeholder="nama@email.com" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kata Sandi</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="reg-pass" type="password" class="form-input" placeholder="Minimal 6 karakter" required />
+              <button type="button" class="btn-show-pass" onclick="togglePass('reg-pass', this)">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Konfirmasi Kata Sandi</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input id="reg-pass2" type="password" class="form-input" placeholder="Ulangi kata sandi" required />
+            </div>
+          </div>
+
+          <div class="form-error" id="reg-error"></div>
+
+          <button type="submit" class="btn-submit" id="reg-btn">Buat Akun →</button>
+        </form>
+
+        <p class="switch-link">Sudah punya akun? <a onclick="switchTab('login')" href="#">Masuk di sini</a></p>
+      </div>
+
+      <p class="terms-text">
+        Dengan masuk Anda menyetujui <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Clear token and force fresh login to avoid stale JWT after server restart/re-seed
+  localStorage.removeItem('ie_token');
+  localStorage.removeItem('ie_user');
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('tab-login-btn').classList.toggle('active', isLogin);
+    document.getElementById('tab-reg-btn').classList.toggle('active', !isLogin);
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-register').classList.toggle('active', !isLogin);
+    document.getElementById('form-title').textContent = isLogin ? 'Selamat Datang 👋' : 'Buat Akun Baru ✨';
+    document.getElementById('form-sub').textContent = isLogin ? 'Masuk ke akun Anda untuk melanjutkan' : 'Daftar gratis dan mulai kelola proyek Anda';
+  }
+
+  function togglePass(id, btn) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+    btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-pass').value;
+    const errEl = document.getElementById('login-error');
+    const btn = document.getElementById('login-btn');
+    errEl.style.display = 'none';
+    btn.textContent = 'Memproses...'; btn.disabled = true;
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.detail || 'Login gagal');
+      localStorage.setItem('ie_token', data.token);
+      localStorage.setItem('ie_user', JSON.stringify(data.user));
+      btn.textContent = '✅ Berhasil!';
+      btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+      setTimeout(() => window.location.href = '/dashboard.html', 800);
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = 'block';
+      btn.textContent = 'Masuk →'; btn.disabled = false;
+    }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-pass').value;
+    const password2 = document.getElementById('reg-pass2').value;
+    const errEl = document.getElementById('reg-error');
+    const btn = document.getElementById('reg-btn');
+    errEl.style.display = 'none';
+    if (password.length < 6) { errEl.textContent = 'Kata sandi minimal 6 karakter'; errEl.style.display = 'block'; return; }
+    if (password !== password2) { errEl.textContent = 'Kata sandi tidak cocok'; errEl.style.display = 'block'; return; }
+    btn.textContent = 'Mendaftar...'; btn.disabled = true;
+    try {
+      const res = await fetch('http://localhost:8000/api/auth/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || data.detail || 'Registrasi gagal');
+      localStorage.setItem('ie_token', data.token);
+      localStorage.setItem('ie_user', JSON.stringify(data.user));
+      btn.textContent = '✅ Akun Dibuat!';
+      btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+      setTimeout(() => window.location.href = '/dashboard.html', 800);
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = 'block';
+      btn.textContent = 'Buat Akun →'; btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

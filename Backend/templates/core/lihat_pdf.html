@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lihat PDF — IntRing PM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #0c4a6e;
+    }
+    .header {
+      background: linear-gradient(135deg, #023e8a, #0077b6);
+      color: white;
+      padding: 1.5rem 2rem;
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 { font-size: 1.4rem; font-weight: 800; }
+    .btn-back {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: white;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.3); }
+    .action-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #023e8a, #0077b6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.4rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      color: #023e8a;
+      border: 1.5px solid #bae6fd;
+      border-radius: 10px;
+      padding: 0.7rem 1.4rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-secondary:hover { background: #e0f2fe; border-color: #0077b6; }
+    .pdf-frame-card {
+      background: white;
+      border-radius: 14px;
+      border: 1px solid #bae6fd;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,119,182,0.1);
+    }
+    .pdf-frame-header {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #bae6fd;
+      font-weight: 700;
+      color: #023e8a;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    iframe {
+      width: 100%;
+      height: 75vh;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>📄 {{ title }}</h1>
+    <a href="javascript:history.back()" class="btn-back">← Kembali</a>
+  </div>
+
+  <div class="action-row">
+    <!-- Buka PDF di tab baru — Praktikum 9 -->
+    <a href="{% url 'buka_pdf_file' %}" target="_blank" class="btn-primary">
+      🔗 Buka di Tab Baru
+    </a>
+    <!-- Download PDF -->
+    <a href="{% url 'buka_pdf_file' %}" download class="btn-secondary">
+      ⬇️ Unduh PDF
+    </a>
+    <a href="{% url 'halaman_cetak' %}" class="btn-secondary">
+      🖨️ Cetak Laporan Proyek
+    </a>
+    <a href="{% url 'halaman_grafik' %}" class="btn-secondary">
+      📊 Lihat Grafik Analitik
+    </a>
+  </div>
+
+  <!-- Embed PDF inline dengan iframe — Praktikum 9 -->
+  <div class="pdf-frame-card">
+    <div class="pdf-frame-header">
+      📄 Dokumen PDF (embedded inline) — IntRing PM
+    </div>
+    <iframe
+      src="{% url 'buka_pdf_file' %}"
+      title="PDF Viewer"
+      id="pdf-iframe">
+      <p>Browser Anda tidak mendukung tampilan PDF inline.
+         <a href="{% url 'buka_pdf_file' %}">Klik di sini untuk membuka PDF</a>.
+      </p>
+    </iframe>
+  </div>
+
+</body>
+</html>

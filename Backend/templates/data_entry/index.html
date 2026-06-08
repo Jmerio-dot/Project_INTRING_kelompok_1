@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Data Entry{% endblock %}
+{% block nav_data_entry %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>📊 Data Entry — Overview</h1>
+</div>
+<div class="p-4">
+  <!-- Stats Row -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="stat-card text-center">
+        <div class="stat-card-value">{{ stats.total_pengguna }}</div>
+        <div class="stat-card-label">Total Pengguna</div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card text-center">
+        <div class="stat-card-value">{{ stats.total_content }}</div>
+        <div class="stat-card-label">Total Konten</div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card text-center">
+        <div class="stat-card-value" style="-webkit-text-fill-color:#15803d;">{{ stats.published }}</div>
+        <div class="stat-card-label">Dipublikasi</div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card text-center">
+        <div class="stat-card-value" style="-webkit-text-fill-color:#b91c1c;">{{ stats.draft }}</div>
+        <div class="stat-card-label">Draft</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-people-fill text-primary"></i> Manajemen Pengguna (Parent)
+        </div>
+        <div class="card-body">
+          <p class="text-muted small">Kelola data pengguna sebagai entitas induk (parent). Menghapus pengguna akan menghapus semua konten miliknya (<strong>CASCADE</strong>).</p>
+          <a href="{% url 'pengguna_list' %}" class="btn btn-primary mr-2">
+            <i class="bi bi-list-ul"></i> Daftar Pengguna
+          </a>
+          <a href="{% url 'set_pengguna' %}" class="btn btn-outline-primary">
+            <i class="bi bi-person-plus"></i> Tambah Pengguna
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center gap-2">
+          <i class="bi bi-file-earmark-text-fill text-success"></i> Manajemen Konten (Child)
+        </div>
+        <div class="card-body">
+          <p class="text-muted small">Kelola artikel/konten sebagai entitas anak (child) dari Pengguna. Relasi: <code>Pengguna.id → Content.author (ON DELETE CASCADE)</code>.</p>
+          <a href="{% url 'content_list' %}" class="btn btn-success mr-2">
+            <i class="bi bi-list-ul"></i> Daftar Konten
+          </a>
+          <a href="{% url 'set_content' %}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-plus"></i> Tambah Konten
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relasi Diagram -->
+  <div class="card mb-4">
+    <div class="card-header"><i class="bi bi-diagram-3-fill text-info"></i> Relasi Parent-Child</div>
+    <div class="card-body">
+      <div class="text-center p-3">
+        <div class="d-inline-block text-center">
+          <div class="border border-primary rounded p-3 mb-2" style="background:#e8f4ff;min-width:180px;">
+            <strong>🏠 Pengguna (Parent)</strong><br>
+            <small class="text-muted">id, nama_lengkap, email, username...</small>
+          </div>
+          <div style="font-size:1.5rem;color:#0077b6;">⬇️</div>
+          <div style="font-size:0.75rem;color:#6c8ba8;margin:-6px 0;">ForeignKey (ON DELETE CASCADE)</div>
+          <div style="font-size:1.5rem;color:#0077b6;">⬇️</div>
+          <div class="border border-success rounded p-3 mt-2" style="background:#f0fff4;min-width:180px;">
+            <strong>📄 Content (Child)</strong><br>
+            <small class="text-muted">author_id → Pengguna.id<br>judul, article, set_view...</small>
+          </div>
+        </div>
+        <div class="ml-5 d-inline-block text-left align-top" style="max-width:300px;">
+          <div class="alert alert-info small mt-3">
+            <strong>📌 Aturan:</strong><br>
+            Jika satu <strong>Pengguna</strong> dihapus, maka semua <strong>Content</strong> yang dimilikinya akan <strong>ikut terhapus otomatis</strong> (<code>on_delete=models.CASCADE</code>).
+          </div>
+          <div class="alert alert-warning small">
+            <strong>⚠️ Sebaliknya:</strong><br>
+            Menghapus <strong>Content</strong> tidak mempengaruhi data <strong>Pengguna</strong> sama sekali.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Content -->
+  <div class="card">
+    <div class="card-header"><i class="bi bi-clock-history text-primary"></i> Konten Terbaru</div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead><tr>
+          <th>JUDUL</th><th>PENULIS</th><th>STATUS</th><th>DIBUAT</th><th></th>
+        </tr></thead>
+        <tbody>
+          {% for c in recent_content %}
+          <tr>
+            <td><strong>{{ c.judul|truncatechars:50 }}</strong></td>
+            <td><small>{{ c.author.email }}</small></td>
+            <td>
+              <span class="badge badge-{% if c.set_view == 'publish' %}publish{% else %}not_publish{% endif %}">
+                {{ c.get_set_view_display }}
+              </span>
+            </td>
+            <td><small>{{ c.date_created|date:"d M Y" }}</small></td>
+            <td><a href="{% url 'content_detail' c.pk %}" class="btn btn-sm btn-outline-primary">Lihat</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">Belum ada konten.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

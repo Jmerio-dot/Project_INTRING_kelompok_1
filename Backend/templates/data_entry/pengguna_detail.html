@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Detail {{ pengguna.nama_lengkap }}{% endblock %}
+{% block nav_pengguna %}active{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center">
+    <a href="{% url 'pengguna_list' %}" class="btn btn-sm btn-outline-secondary mr-3">← Kembali</a>
+    <h1>👤 {{ pengguna.nama_lengkap }}</h1>
+  </div>
+  <div>
+    <a href="{% url 'edit_pengguna' pengguna.pk %}" class="btn btn-warning mr-2">
+      <i class="bi bi-pencil"></i> Edit
+    </a>
+    <a href="{% url 'hapus_pengguna' pengguna.pk %}" class="btn btn-danger">
+      <i class="bi bi-trash"></i> Hapus
+    </a>
+  </div>
+</div>
+
+<div class="p-4">
+  <div class="row">
+    <!-- Info Pengguna -->
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-person-circle"></i> Informasi Pengguna</div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            {% if pengguna.foto_profil %}
+              <img src="{{ pengguna.foto_profil.url }}" class="rounded-circle" width="80" height="80" style="object-fit:cover;">
+            {% else %}
+              <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white font-weight-bold"
+                   style="width:80px;height:80px;background:linear-gradient(135deg,#0077b6,#48cae4);font-size:1.8rem;">
+                {{ pengguna.nama_lengkap|first|upper }}
+              </div>
+            {% endif %}
+          </div>
+          <table class="table table-sm table-borderless">
+            <tr><td class="text-muted font-weight-bold">Nama</td><td>{{ pengguna.nama_lengkap }}</td></tr>
+            <tr><td class="text-muted font-weight-bold">Email</td><td><code>{{ pengguna.email }}</code></td></tr>
+            <tr><td class="text-muted font-weight-bold">Username</td><td><code>{{ pengguna.username }}</code></td></tr>
+            <tr><td class="text-muted font-weight-bold">Peran</td>
+                <td><span class="badge badge-{% if pengguna.role == 'admin' %}danger{% elif pengguna.role == 'editor' %}warning{% else %}secondary{% endif %}">{{ pengguna.get_role_display }}</span></td></tr>
+            <tr><td class="text-muted font-weight-bold">Status</td>
+                <td><span class="badge badge-{% if pengguna.aktif %}success{% else %}secondary{% endif %}">{% if pengguna.aktif %}Aktif{% else %}Nonaktif{% endif %}</span></td></tr>
+            <tr><td class="text-muted font-weight-bold">No. Telp</td><td>{{ pengguna.no_telepon|default:"-" }}</td></tr>
+            <tr><td class="text-muted font-weight-bold">Tgl Lahir</td><td>{{ pengguna.tanggal_lahir|date:"d M Y"|default:"-" }}</td></tr>
+            <tr><td class="text-muted font-weight-bold">Bergabung</td><td>{{ pengguna.dibuat_pada|date:"d M Y" }}</td></tr>
+          </table>
+          {% if pengguna.bio %}
+          <div class="mt-2 p-2 rounded" style="background:#f8f9fa;font-size:0.85rem;">{{ pengguna.bio }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Daftar Konten (Child) -->
+    <div class="col-md-8 mb-4">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-file-earmark-text text-success"></i> Konten Milik {{ pengguna.nama_lengkap }}</span>
+          <a href="{% url 'set_content' %}?author={{ pengguna.pk }}" class="btn btn-sm btn-success">
+            <i class="bi bi-plus"></i> Tambah Konten
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0">
+            <thead><tr>
+              <th>JUDUL</th><th>STATUS</th><th>KATEGORI</th><th>DIBUAT</th><th>AKSI</th>
+            </tr></thead>
+            <tbody>
+              {% for c in contents %}
+              <tr>
+                <td>
+                  <a href="{% url 'content_detail' c.pk %}" class="text-dark font-weight-bold text-decoration-none">
+                    {{ c.judul|truncatechars:40 }}
+                  </a>
+                </td>
+                <td>
+                  <span class="badge badge-{% if c.set_view == 'publish' %}publish{% else %}not_publish{% endif %}">
+                    {{ c.get_set_view_display }}
+                  </span>
+                </td>
+                <td><small>{{ c.get_kategori_display }}</small></td>
+                <td><small>{{ c.date_created|date:"d M Y" }}</small></td>
+                <td>
+                  <a href="{% url 'edit_content' c.pk %}" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a href="{% url 'hapus_content' c.pk %}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  Pengguna ini belum memiliki konten.
+                  <a href="{% url 'set_content' %}">Tambah konten pertama</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Warning CASCADE -->
+      <div class="alert alert-danger mt-3 small">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Perhatian — ON DELETE CASCADE:</strong>
+        Menghapus pengguna ini akan <strong>menghapus {{ contents.count }} konten</strong> secara otomatis.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

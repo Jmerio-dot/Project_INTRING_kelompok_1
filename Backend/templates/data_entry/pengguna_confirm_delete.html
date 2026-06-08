@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Hapus Pengguna{% endblock %}
+{% block nav_pengguna %}active{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>🗑️ Konfirmasi Hapus</h1></div>
+<div class="p-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white"><strong>⚠️ Konfirmasi Hapus Pengguna</strong></div>
+        <div class="card-body">
+          <h5>Anda akan menghapus:</h5>
+          <ul>
+            <li><strong>Pengguna:</strong> {{ pengguna.nama_lengkap }}</li>
+            <li><strong>Email:</strong> {{ pengguna.email }}</li>
+            <li><strong>Jumlah Konten:</strong> {{ pengguna.contents.count }} konten</li>
+          </ul>
+          <div class="alert alert-danger">
+            <strong>❗ Peringatan ON DELETE CASCADE:</strong><br>
+            Semua <strong>{{ pengguna.contents.count }} konten</strong> milik pengguna ini akan <strong>ikut terhapus</strong> secara permanen dan tidak dapat dipulihkan!
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg">
+              <i class="bi bi-trash"></i> Ya, Hapus Segalanya
+            </button>
+            <a href="{% url 'pengguna_list' %}" class="btn btn-secondary btn-lg ml-2">Batal</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

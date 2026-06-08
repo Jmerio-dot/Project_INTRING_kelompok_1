@@ -1,0 +1,85 @@
+﻿window.doDownload = async function() {
+    const type = document.querySelector('input[name="dl-type"]:checked')?.value;
+    const btn  = document.getElementById('btn-dl');
+    btn.disabled = true;
+    btn.textContent = 'Memproses…';
+
+    try {
+      const transcriptText = buildPlainText();
+      const safeName = project.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+      
+      const element = document.getElementById('paper-page');
+      
+      const opt = {
+        margin:       15,
+        filename:     `transcript_${safeName}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      if (type === 'pdf') {
+        if (typeof html2pdf === 'undefined') {
+          showToast('Library PDF belum dimuat. Coba refresh halaman.', 'error');
+          btn.disabled = false; btn.textContent = '⬇️ Download Sekarang';
+          return;
+        }
+        await html2pdf().set(opt).from(element).save();
+        btn.disabled = false;
+        btn.textContent = '⬇️ Download Sekarang';
+        showToast('✅ PDF berhasil didownload!');
+        return;
+      } else {
+        if (typeof JSZip === 'undefined') {
+          showToast('JSZip belum dimuat. Coba refresh halaman.', 'error');
+          btn.disabled = false; btn.textContent = '⬇️ Download Sekarang';
+          return;
+        }
+        if (typeof html2pdf === 'undefined') {
+          showToast('Library PDF belum dimuat.', 'error');
+          btn.disabled = false; btn.textContent = '⬇️ Download Sekarang';
+          return;
+        }
+        const zip = new JSZip();
+        
+        // Generate PDF as Blob
+        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+        zip.file(`transcript_${safeName}.pdf`, pdfBlob);
+
+        const allAtts = [];
+        issues.forEach(issue => {
+          (issue.attachments||[]).forEach(a => {
+            allAtts.push({ ...a, issueKey: issue.issue_key });
+          });
+        });
+
+        if (allAtts.length) {
+          const folder = zip.folder('uploads');
+          const token = localStorage.getItem('ie_token');
+          await Promise.all(allAtts.map(async (a) => {
+            try {
+              const res = await fetch(a.file_url, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+              });
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              const blob = await res.blob();
+              const arrayBuffer = await blob.arrayBuffer();
+              folder.file(`${a.issueKey}_${a.original_name}`, arrayBuffer);
+            } catch(e) {
+              console.warn('Could not fetch', a.original_name, e.message);
+            }
+          }));
+        }
+
+        const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+        triggerDownload(content, `transcript_${safeName}.zip`);
+        showToast(`✅ ZIP berhasil didownload! (${allAtts.length} file)`);
+      }
+    } catch(e) {
+      showToast('Gagal download: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '⬇️ Download Sekarang';
+    }
+  };
+

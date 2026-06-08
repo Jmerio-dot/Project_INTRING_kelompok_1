@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Issue – Intelligence Engineering</title>
+  <link rel="stylesheet" href="app-theme.css" />
+  <style>
+    /* ── Attachment UI ── */
+    .attach-drop-zone {
+      border: 2px dashed var(--border); border-radius: 12px;
+      padding: 1.5rem 1rem; text-align: center; cursor: pointer;
+      transition: all 0.2s; background: #f8fbff; margin-bottom: 0.75rem;
+      position: relative;
+    }
+    .attach-drop-zone:hover, .attach-drop-zone.drag-active {
+      border-color: var(--cyan); background: #e8f4ff;
+    }
+    .attach-drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .attach-drop-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
+    .attach-drop-text { font-size: 0.8rem; color: var(--muted); }
+    .attach-drop-text span { color: var(--cyan); font-weight: 600; }
+
+    .attach-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .attach-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0.85rem; background: #fff;
+      border: 1px solid var(--border); border-radius: 10px;
+      transition: box-shadow 0.15s;
+    }
+    .attach-item:hover { box-shadow: var(--shadow); }
+    .attach-file-icon {
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; background: var(--bg2);
+    }
+    .attach-info { flex: 1; min-width: 0; }
+    .attach-name {
+      font-size: 0.84rem; font-weight: 600; color: var(--ocean);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      text-decoration: none; display: block;
+    }
+    .attach-name:hover { text-decoration: underline; }
+    .attach-meta { font-size: 0.68rem; color: var(--muted); margin-top: 0.1rem; }
+    .attach-del {
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      font-size: 1rem; padding: 0.25rem; border-radius: 6px; transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .attach-del:hover { background: #fee2e2; color: #dc2626; }
+    .attach-uploading {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.8rem; color: var(--cyan); padding: 0.5rem 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.8s linear infinite; display: inline-block; }
+
+    /* Intelligence Tabs */
+    .intel-tab-btn {
+      flex: 1; padding: 0.75rem; background: none; border: none; font-weight: 600;
+      font-size: 0.8rem; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer;
+    }
+    .intel-tab-btn.active { color: var(--ocean); border-bottom-color: var(--ocean); background: #fff; }
+    .intel-section-title { font-weight: 700; color: var(--ocean); margin: 1rem 0 0.5rem; font-size: 0.9rem; }
+    .intel-box { background: #f8fafc; border: 1px solid var(--border); padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="app-sidebar" id="sidebar"></aside>
+  <main class="app-main">
+    <div class="app-topbar"><button class="btn-back" onclick="history.back()">← Kembali</button>
+      <div class="topbar-title-group">
+        <div id="breadcrumb" style="font-size:0.72rem;color:var(--muted);">Projects</div>
+        <h1 id="issue-key-title" style="margin:0;font-size:0.95rem;color:var(--text2);">Loading...</h1>
+      </div>
+      <button class="btn-outline" onclick="saveIssue()" style="padding:0.4rem 1rem;font-size:0.82rem;">💾 Simpan</button>
+      <button class="btn-danger btn-sm" onclick="deleteIssue()">🗑 Hapus</button>
+    </div>
+    <div class="app-content">
+      <div class="issue-detail-grid">
+
+        <!-- LEFT: Content -->
+        <div>
+          <input id="issue-title" class="issue-title-editable" placeholder="Issue title..." />
+          <div style="margin:1rem 0 0.5rem;font-size:0.8rem;font-weight:600;color:var(--muted);">DESKRIPSI</div>
+          <textarea id="issue-desc" class="issue-desc-editable" placeholder="Tambahkan deskripsi..."></textarea>
+
+          <!-- INTELLIGENCE TABS (Dinamis jika issue cerdas) -->
+            <div id="intel-container" style="display:none; margin-top:1.5rem; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+              <div style="display:flex; border-bottom:1px solid var(--border); background:#f8fafc;" id="intel-tabs">
+                <button class="intel-tab-btn active" onclick="switchIntelTab('obj')">Meaningful Objectives</button>
+                <button class="intel-tab-btn" onclick="switchIntelTab('exp')">Intelligence Experiences</button>
+                <button class="intel-tab-btn" onclick="switchIntelTab('impl')">Intelligence Implementation</button>
+                <button class="intel-tab-btn" onclick="switchIntelTab('stat')">Creation Status</button>
+                <button class="intel-tab-btn" onclick="switchIntelTab('orch')">Orchestration</button>
+              </div>
+            <div id="intel-content" style="padding:1.5rem; background:#fff;"></div>
+          </div>
+
+          <!-- ATTACHMENTS -->
+          <div style="margin-top:1.75rem;">
+            <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;">
+              📎 Lampiran <span id="attach-count" style="color:var(--muted);font-weight:400;font-size:0.8rem;"></span>
+            </div>
+
+            <!-- Drop Zone -->
+            <div class="attach-drop-zone" id="drop-zone">
+              <input type="file" id="file-input" multiple accept="*/*" onchange="handleFileSelect(this.files)" />
+              <div class="attach-drop-icon">☁️</div>
+              <div class="attach-drop-text">Drag & drop file di sini atau <span>klik untuk memilih</span></div>
+              <div class="attach-drop-text" style="margin-top:0.2rem;">Maks. 10MB per file</div>
+            </div>
+
+            <!-- Upload progress indicator -->
+            <div id="upload-indicator" style="display:none;" class="attach-uploading">
+              <span class="spin">⏳</span> Mengupload...
+            </div>
+
+            <!-- Attachment List -->
+            <div class="attach-list" id="attach-list"></div>
+          </div>
+
+          <!-- COMMENTS -->
+          <div style="margin-top:2rem;">
+            <div style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;">💬 Komentar <span id="comment-count" style="color:var(--muted);font-weight:400;font-size:0.8rem;"></span></div>
+            <div id="comment-list" class="comment-list"></div>
+            <div class="comment-input-row">
+              <div class="comment-avatar" id="my-avatar" style="flex-shrink:0;">🙂</div>
+              <textarea id="comment-input" class="comment-input" placeholder="Tulis komentar... (Shift+Enter baris baru, Enter kirim)" rows="2"></textarea>
+              <button class="btn-primary" onclick="submitComment()" style="padding:0.5rem 1rem;font-size:0.82rem;align-self:flex-end;white-space:nowrap;">Kirim</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Meta panel -->
+        <div>
+          <div class="issue-meta-panel">
+            <div class="meta-row">
+              <div class="meta-label">Status</div>
+              <select id="meta-status" class="meta-select" onchange="quickSave()">
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="in_review">In Review</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Priority</div>
+              <select id="meta-priority" class="meta-select" onchange="quickSave()">
+                <option value="low">🟢 Low</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="high">🟠 High</option>
+                <option value="critical">🔴 Critical</option>
+              </select>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Type</div>
+              <select id="meta-type" class="meta-select" onchange="quickSave()">
+                <option value="task">✅ Task</option>
+                <option value="story">📗 Story</option>
+                <option value="bug">🐛 Bug</option>
+                <option value="epic">⚡ Epic</option>
+              </select>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Assignee</div>
+              <select id="meta-assignee" class="meta-select">
+                <option value="">Unassigned</option>
+              </select>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Sprint</div>
+              <select id="meta-sprint" class="meta-select" onchange="quickSave()">
+                <option value="">No Sprint (Backlog)</option>
+              </select>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Story Points</div>
+              <input id="meta-sp" type="number" class="meta-select" placeholder="—" min="1" max="100" onchange="quickSave()" />
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Labels</div>
+              <input id="meta-labels" class="meta-select" placeholder="frontend, backend, bug" onchange="quickSave()" />
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Due Date</div>
+              <input id="meta-due" type="date" class="meta-select" onchange="quickSave()" />
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Reporter</div>
+              <div class="meta-value" id="meta-reporter" style="color:var(--text2);">—</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Created</div>
+              <div class="meta-value" id="meta-created" style="color:var(--text2);font-size:0.8rem;">—</div>
+            </div>
+            <div class="meta-row">
+              <div class="meta-label">Updated</div>
+              <div class="meta-value" id="meta-updated" style="color:var(--text2);font-size:0.8rem;">—</div>
+            </div>
+          </div>
+
+          <!-- Quick links -->
+          <div style="margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;">
+            <a id="link-board" href="#" class="sb-link" style="background:#fff;border:1px solid var(--border);border-radius:10px;color:var(--text2);">
+              <span class="sb-link-icon">📋</span><span>View on Board</span>
+            </a>
+            <a id="link-backlog" href="#" class="sb-link" style="background:#fff;border:1px solid var(--border);border-radius:10px;color:var(--text2);">
+              <span class="sb-link-icon">📁</span><span>View Backlog</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script src="sidebar.js"></script>
+<script>
+  (async () => {
+    if (!requireAuth()) return;
+    const issueId = new URLSearchParams(location.search).get('id');
+    if (!issueId) return (location.href = '/dashboard.html');
+
+    let issue = null;
+    const myUser = getUser();
+    document.getElementById('my-avatar').textContent = myUser?.avatar || '🙂';
+
+    document.getElementById('comment-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(); }
+    });
+
+    // ── Drag & Drop ──────────────────────────────────────────────────────────
+    const dropZone = document.getElementById('drop-zone');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-active'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-active'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('drag-active');
+      handleFileSelect(e.dataTransfer.files);
+    });
+
+    // ── File Type Icons ──────────────────────────────────────────────────────
+    function fileIcon(mimetype, name) {
+      const ext = name.split('.').pop().toLowerCase();
+      if (mimetype.startsWith('image/')) return '🖼️';
+      if (mimetype === 'application/pdf' || ext === 'pdf') return '📄';
+      if (['zip','rar','7z','tar','gz'].includes(ext)) return '🗜️';
+      if (['doc','docx'].includes(ext)) return '📝';
+      if (['xls','xlsx','csv'].includes(ext)) return '📊';
+      if (['ppt','pptx'].includes(ext)) return '📊';
+      if (['mp4','mov','avi','mkv'].includes(ext)) return '🎬';
+      if (['mp3','wav','ogg'].includes(ext)) return '🎵';
+      if (['js','ts','py','java','go','rs','html','css','json'].includes(ext)) return '💻';
+      return '📎';
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes/1024).toFixed(1)} KB`;
+      return `${(bytes/1024/1024).toFixed(1)} MB`;
+    }
+
+    // ── Upload ───────────────────────────────────────────────────────────────
+    async function handleFileSelect(files) {
+      if (!files?.length) return;
+      const indicator = document.getElementById('upload-indicator');
+      indicator.style.display = 'flex';
+      for (const file of Array.from(files)) {
+        if (file.size > 10 * 1024 * 1024) {
+          showToast(`${file.name} terlalu besar (maks 10MB)`, 'error'); continue;
+        }
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          await apiFetch(`/issues/${issueId}/attachments`, {
+            method: 'POST',
+            body: formData,
+          });
+          
+          showToast(`"${file.name}" terupload!`);
+        } catch(e) { 
+          showToast(e.message, 'error'); 
+        }
+      }
+      indicator.style.display = 'none';
+      document.getElementById('file-input').value = '';
+      await loadAttachments();
+    }
+
+    // ── Load Attachments ─────────────────────────────────────────────────────
+    async function loadAttachments() {
+      const atts = await apiFetch(`/issues/${issueId}/attachments`);
+      document.getElementById('attach-count').textContent = `(${atts.length})`;
+      const list = document.getElementById('attach-list');
+      if (!atts.length) {
+        list.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);padding:0.25rem 0;">Belum ada lampiran.</div>';
+        return;
+      }
+      list.innerHTML = atts.map(a => `
+        <div class="attach-item" id="att-${a.id}">
+          <div class="attach-file-icon">${fileIcon(a.mimetype, a.original_name)}</div>
+          <div class="attach-info">
+            <a class="attach-name" href="/uploads/${a.filename}" target="_blank" download="${a.original_name}">${a.original_name}</a>
+            <div class="attach-meta">${formatBytes(a.size)} · ${a.uploader_name} · ${timeAgo(a.created_at)}</div>
+          </div>
+          <button class="attach-del" title="Hapus lampiran" onclick="deleteAttachment(${a.id}, '${a.original_name.replace(/'/g,"\\'")}')">🗑</button>
+        </div>
+      `).join('');
+    }
+
+    async function deleteAttachment(id, name) {
+      if (!confirm(`Hapus lampiran "${name}"?`)) return;
+      try {
+        await apiFetch(`/attachments/${id}`, { method: 'DELETE' });
+        document.getElementById(`att-${id}`)?.remove();
+        showToast('Lampiran dihapus');
+        const list = document.getElementById('attach-list');
+        const count = list.querySelectorAll('.attach-item').length;
+        document.getElementById('attach-count').textContent = `(${count})`;
+        if (!count) list.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);padding:0.25rem 0;">Belum ada lampiran.</div>';
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    async function init() {
+      issue = await apiFetch(`/issues/${issueId}`);
+      document.title = `${issue.issue_key} – ${issue.title}`;
+      document.getElementById('breadcrumb').textContent = `${issue.project_name} / Issue`;
+      document.getElementById('issue-key-title').textContent = `${issue.issue_key} · ${TYPE_ICON[issue.type]||'✅'} ${issue.type}`;
+
+      document.getElementById('issue-title').value = issue.title;
+      document.getElementById('issue-desc').value = issue.description || '';
+      document.getElementById('meta-status').value = issue.status;
+      document.getElementById('meta-priority').value = issue.priority;
+      document.getElementById('meta-type').value = issue.type;
+      document.getElementById('meta-sp').value = issue.story_points || '';
+      document.getElementById('meta-labels').value = issue.labels || '';
+      document.getElementById('meta-due').value = issue.due_date || '';
+      document.getElementById('meta-reporter').textContent = issue.reporter_name;
+      document.getElementById('meta-created').textContent = formatDate(issue.created_at);
+      document.getElementById('meta-updated').textContent = formatDate(issue.updated_at);
+      document.getElementById('link-board').href = `/board.html?pid=${issue.project_id}`;
+      document.getElementById('link-backlog').href = `/backlog.html?pid=${issue.project_id}`;
+
+      await renderSidebar('issue', issue.project_id);
+
+      // Load all users (not just members) for assignee
+      const [allUsers, sprints] = await Promise.all([
+        apiFetch('/users'),
+        apiFetch(`/projects/${issue.project_id}/sprints`),
+      ]);
+      const assigneeEl = document.getElementById('meta-assignee');
+      assigneeEl.innerHTML = '<option value="">Unassigned</option>' +
+        allUsers.map(u => `<option value="${u.id}">${u.avatar||'👤'} ${u.name}</option>`).join('') +
+        '<option value="ADD_BY_EMAIL" style="font-weight:bold;color:var(--ocean);">+ Invite / Add Assignee...</option>';
+      assigneeEl.value = issue.assignee_id || '';
+      
+      // Add event listener for dynamic assignee adding
+      assigneeEl.addEventListener('change', async (e) => {
+        if (e.target.value === 'ADD_BY_EMAIL') {
+           const email = prompt('Masukkan email user yang terdaftar:');
+           if (email) {
+             const u = allUsers.find(x => x.email === email);
+             if (u) {
+               // Assign logic
+               e.target.value = u.id;
+               quickSave();
+             } else {
+               alert('Email tidak ditemukan di sistem!');
+               e.target.value = issue.assignee_id || '';
+             }
+           } else {
+             e.target.value = issue.assignee_id || '';
+           }
+        } else {
+           quickSave();
+        }
+      });
+
+      const sprintEl = document.getElementById('meta-sprint');
+      sprintEl.innerHTML = '<option value="">No Sprint (Backlog)</option>' +
+        sprints.map(s => `<option value="${s.id}">${s.name} (${s.status})</option>`).join('');
+      sprintEl.value = issue.sprint_id || '';
+
+      // Render Intelligence UI if exists
+      if ((issue.meaningful_objectives && Object.keys(issue.meaningful_objectives).length > 0) || 
+          (issue.intelligence_experience && Object.keys(issue.intelligence_experience).length > 0)) {
+        document.getElementById('intel-container').style.display = 'block';
+        window.intelData = issue;
+        switchIntelTab('obj');
+      }
+
+      await Promise.all([loadComments(), loadAttachments()]);
+    }
+
+    window.switchIntelTab = function(tab) {
+      document.querySelectorAll('.intel-tab-btn').forEach(b => b.classList.remove('active'));
+      const content = document.getElementById('intel-content');
+      const data = window.intelData;
+      
+      if (tab === 'obj') {
+        document.querySelector('.intel-tab-btn[onclick="switchIntelTab(\'obj\')"]').classList.add('active');
+        const mo = data.meaningful_objectives || {};
+        content.innerHTML = `
+          <div class="intel-section-title">Organizational Objectives</div>
+          <div class="intel-box">
+            <b>Tujuan:</b> ${mo.organizational?.obj || '-'}<br>
+            <b>Cara:</b> ${mo.organizational?.how || '-'}<br>
+            <b>Ukuran:</b> ${mo.organizational?.measure || '-'}
+          </div>
+          <div class="intel-section-title">Leading Indicators</div>
+          <div class="intel-box">
+            ${(mo.leading_indicators||[]).map(i => `• ${i.col1} (Kita: ${i.col2}, Komp: ${i.col3})`).join('<br>') || '-'}
+          </div>
+          <div class="intel-section-title">User Outcomes</div>
+          <div class="intel-box">
+            <b>Tujuan:</b> ${mo.user_outcomes?.obj || '-'}<br>
+            <b>Cara:</b> ${mo.user_outcomes?.how || '-'}<br>
+            <b>Ukuran:</b> ${mo.user_outcomes?.measure || '-'}
+          </div>
+          <div class="intel-section-title">Model Properties</div>
+          <div class="intel-box">
+            <b>Spesifikasi:</b> ${mo.model_properties?.obj || '-'}<br>
+            <b>Cara:</b> ${mo.model_properties?.how || '-'}<br>
+            <b>Ukuran:</b> ${mo.model_properties?.measure || '-'}
+          </div>
+        `;
+      } else if (tab === 'exp') {
+        document.querySelector('.intel-tab-btn[onclick="switchIntelTab(\'exp\')"]').classList.add('active');
+        const ie = data.intelligence_experience || {};
+        const p = ie.presentation || {};
+        const pList = [];
+        if(p.automate) pList.push('Automate'); if(p.prompt) pList.push('Prompt');
+        if(p.organisation) pList.push('Organisation'); if(p.annotate) pList.push('Annotate');
+        content.innerHTML = `
+          <div class="intel-section-title">Penyajian Kecerdasan</div>
+          <div class="intel-box">
+            <b>Mode:</b> ${pList.join(', ') || '-'}<br>
+            <b>Deskripsi:</b> ${p.desc || '-'}
+          </div>
+          <div class="intel-section-title">Fungsi Realisasi</div>
+          <div class="intel-box">
+            ${(ie.functions||[]).map(f => `• <b>${f.col1}:</b> ${f.col2}`).join('<br>') || '-'}
+          </div>
+          <div class="intel-section-title">Minimalisasi Kesalahan</div>
+          <div class="intel-box">
+            ${(ie.error_mitigation||[]).map(f => `• <b>${f.col1}:</b> ${f.col2}`).join('<br>') || '-'}
+          </div>
+          <div class="intel-section-title">Pengumpulan Data</div>
+          <div class="intel-box">
+            ${(ie.data_collection||[]).map(f => `• <b>${f.col1}:</b> ${f.col2}`).join('<br>') || '-'}
+          </div>
+        `;
+      } else if (tab === 'impl') {
+        document.querySelector('.intel-tab-btn[onclick="switchIntelTab(\'impl\')"]').classList.add('active');
+        const im = data.intelligence_implementation || {};
+        content.innerHTML = `
+          <div class="intel-section-title">Proses Bisnis</div>
+          <div class="intel-box">
+            ${(im.business_process||[]).map(f => `• <b>${f.col1}:</b> ${f.col2}`).join('<br>') || '-'}
+          </div>
+          <div class="intel-section-title">Teknologi per Proses</div>
+          <div class="intel-box">
+            ${(im.technology||[]).map(f => `• <b>${f.col1}:</b> ${f.col2}`).join('<br>') || '-'}
+          </div>
+        `;
+      } else if (tab === 'stat') {
+        document.querySelector('.intel-tab-btn[onclick="switchIntelTab(\'stat\')"]').classList.add('active');
+        const st = data.creation_status || {};
+        content.innerHTML = `
+          <div class="intel-section-title">Status Realisasi Modul Cerdas</div>
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+            <div style="flex:1; background:#e2e8f0; height:8px; border-radius:4px; overflow:hidden;">
+              <div style="width:${st.progress||0}%; background:#10b981; height:100%;"></div>
+            </div>
+            <span style="font-weight:700; font-size:0.9rem; color:var(--ocean);">${st.progress||0}%</span>
+          </div>
+          <div class="intel-section-title">Batas Pengembangan</div>
+          <div class="intel-box">
+            ${(st.modules||[]).map(m => `• ${m}`).join('<br>') || 'Belum ada batas / modul spesifik'}
+          </div>
+          <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px dashed var(--border);">
+            <div class="intel-section-title" style="margin-top:0;">Upload Bukti / Evidence</div>
+            <p style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;">Silakan gunakan fitur <b>Lampiran (Attachments)</b> di bawah untuk mengupload file bukti realisasi sistem.</p>
+            <button class="btn-outline btn-sm" onclick="document.getElementById('file-input').click()">+ Upload Evidence</button>
+          </div>
+        `;
+      } else if (tab === 'orch') {
+        document.querySelector('.intel-tab-btn[onclick="switchIntelTab(\'orch\')"]').classList.add('active');
+        content.innerHTML = `
+          <div class="intel-section-title">Orchestration</div>
+          <div class="intel-box" style="text-align:center;color:var(--muted);padding:2rem;">
+            Data orchestration belum tersedia.
+          </div>
+        `;
+      }
+    };
+
+    async function loadComments() {
+      const comments = await apiFetch(`/issues/${issueId}/comments`);
+      document.getElementById('comment-count').textContent = `(${comments.length})`;
+      document.getElementById('comment-list').innerHTML = comments.length ? comments.map(c => `
+        <div class="comment-item">
+          <div class="comment-avatar">${c.user_avatar||'🙂'}</div>
+          <div class="comment-bubble">
+            <div class="comment-meta"><strong>${c.user_name}</strong> · ${timeAgo(c.created_at)}</div>
+            <div class="comment-text">${c.content.replace(/\n/g,'<br>')}</div>
+          </div>
+        </div>
+      `).join('') : '<div style="color:var(--muted);font-size:0.85rem;padding:0.5rem 0;">Belum ada komentar. Jadilah yang pertama!</div>';
+    }
+
+    async function submitComment() {
+      const content = document.getElementById('comment-input').value.trim();
+      if (!content) return;
+      try {
+        await apiFetch(`/issues/${issueId}/comments`, { method: 'POST', body: { content } });
+        document.getElementById('comment-input').value = '';
+        await loadComments();
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    async function saveIssue() {
+      try {
+        const body = {
+          title: document.getElementById('issue-title').value.trim(),
+          description: document.getElementById('issue-desc').value,
+          type: document.getElementById('meta-type').value,
+          status: document.getElementById('meta-status').value,
+          priority: document.getElementById('meta-priority').value,
+          assignee_id: document.getElementById('meta-assignee').value || null,
+          sprint_id: document.getElementById('meta-sprint').value || null,
+          labels: document.getElementById('meta-labels').value,
+          story_points: document.getElementById('meta-sp').value || null,
+          due_date: document.getElementById('meta-due').value || null,
+        };
+        issue = await apiFetch(`/issues/${issueId}`, { method: 'PUT', body });
+        document.getElementById('meta-updated').textContent = formatDate(issue.updated_at);
+        showToast('Issue tersimpan!');
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    let saveTimer;
+    function quickSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveIssue, 800); }
+
+    async function deleteIssue() {
+      if (!confirm(`Hapus issue ${issue?.issue_key}? Tidak bisa dibatalkan.`)) return;
+      await apiFetch(`/issues/${issueId}`, { method: 'DELETE' });
+      showToast('Issue dihapus');
+      setTimeout(() => history.back(), 1000);
+    }
+
+    // Expose to global scope for inline handlers
+    window.deleteAttachment = deleteAttachment;
+    window.handleFileSelect = handleFileSelect;
+    window.submitComment = submitComment;
+    window.saveIssue = saveIssue;
+    window.deleteIssue = deleteIssue;
+    window.quickSave = quickSave;
+
+    init();
+  })();
+</script>
+</body>
+</html>

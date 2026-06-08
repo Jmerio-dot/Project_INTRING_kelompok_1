@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>📊 Analitik Proyek — IntRing PM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(160deg, #023e8a 0%, #0077b6 30%, #0096c7 60%, #caf0f8 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #fff;
+    }
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .page-header h1 { font-size: 1.8rem; font-weight: 900; }
+    .page-header p  { font-size: 0.85rem; opacity: 0.8; margin-top: 0.3rem; }
+    .btn-back {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      color: white;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.25); }
+
+    /* Stats bar */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+    }
+    .stat-number { font-size: 2.2rem; font-weight: 900; }
+    .stat-label  { font-size: 0.8rem; opacity: 0.8; margin-top: 0.2rem; }
+
+    /* Charts grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .chart-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      padding: 1.5rem;
+      color: #0c4a6e;
+    }
+    .chart-card.full-width { grid-column: 1 / -1; }
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #023e8a;
+      margin-bottom: 0.3rem;
+    }
+    .chart-sub {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 1rem;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+    .chart-wrap.tall { height: 320px; }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      opacity: 0.7;
+      color: white;
+      font-size: 0.9rem;
+    }
+    .error-msg {
+      background: rgba(220,38,38,0.15);
+      border: 1px solid rgba(220,38,38,0.3);
+      border-radius: 10px;
+      padding: 1rem;
+      color: #fca5a5;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div>
+      <h1>📊 Analitik & Grafik Proyek</h1>
+      <p>Data real-time dari database IntRing PM — divisualisasikan dengan Chart.js</p>
+    </div>
+    <a href="javascript:history.back()" class="btn-back">← Kembali</a>
+  </div>
+
+  <!-- Stats summary -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-number" id="stat-projects">—</div>
+      <div class="stat-label">Total Proyek</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-issues">—</div>
+      <div class="stat-label">Total Issue</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-users">—</div>
+      <div class="stat-label">Total Pengguna</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="stat-done">—%</div>
+      <div class="stat-label">Issue Selesai</div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading">⏳ Memuat data dari server...</div>
+  <div id="error-msg" class="error-msg" style="display:none;"></div>
+
+  <div class="charts-grid" id="charts-grid" style="display:none">
+
+    <!-- Grafik 1: Issue per Status (Bar chart) -->
+    <div class="chart-card">
+      <div class="chart-title">📋 Issue per Status</div>
+      <div class="chart-sub">Distribusi semua issue berdasarkan status pekerjaan</div>
+      <div class="chart-wrap">
+        <canvas id="chart-status"></canvas>
+      </div>
+    </div>
+
+    <!-- Grafik 2: Issue per Prioritas (Doughnut) -->
+    <div class="chart-card">
+      <div class="chart-title">🎯 Issue per Prioritas</div>
+      <div class="chart-sub">Sebaran issue berdasarkan tingkat prioritas</div>
+      <div class="chart-wrap">
+        <canvas id="chart-priority"></canvas>
+      </div>
+    </div>
+
+    <!-- Grafik 3: Proyek paling aktif (Horizontal Bar) -->
+    <div class="chart-card full-width">
+      <div class="chart-title">🏆 Proyek Paling Aktif</div>
+      <div class="chart-sub">5 proyek dengan jumlah issue terbanyak</div>
+      <div class="chart-wrap tall">
+        <canvas id="chart-projects"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Fetch data dari Django API — Praktikum 9b: fetch('/api/data-grafik/')
+    fetch('/api/data-grafik/')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('charts-grid').style.display = 'grid';
+
+        // Update stat cards
+        document.getElementById('stat-projects').textContent = data.stats.total_projects;
+        document.getElementById('stat-issues').textContent   = data.stats.total_issues;
+        document.getElementById('stat-users').textContent    = data.stats.total_users;
+        document.getElementById('stat-done').textContent     = data.stats.done_rate + '%';
+
+        // Grafik 1 — Issue per Status (Bar)
+        new Chart(document.getElementById('chart-status').getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: data.issue_per_status.labels,
+            datasets: [{
+              label: 'Jumlah Issue',
+              data: data.issue_per_status.data,
+              backgroundColor: data.issue_per_status.colors,
+              borderColor: data.issue_per_status.colors.map(c => c.replace('0.8', '1')),
+              borderWidth: 2,
+              borderRadius: 8,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+
+        // Grafik 2 — Issue per Prioritas (Doughnut)
+        new Chart(document.getElementById('chart-priority').getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: data.issue_per_priority.labels,
+            datasets: [{
+              data: data.issue_per_priority.data,
+              backgroundColor: data.issue_per_priority.colors,
+              borderWidth: 2,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'right' }
+            }
+          }
+        });
+
+        // Grafik 3 — Proyek paling aktif (Horizontal Bar)
+        new Chart(document.getElementById('chart-projects').getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: data.project_activity.labels,
+            datasets: [{
+              label: 'Jumlah Issue',
+              data: data.project_activity.data,
+              backgroundColor: data.project_activity.colors,
+              borderRadius: 8,
+            }]
+          },
+          options: {
+            indexAxis: 'y',   // Horizontal bar
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      })
+      .catch(err => {
+        document.getElementById('loading').style.display = 'none';
+        const errEl = document.getElementById('error-msg');
+        errEl.style.display = 'block';
+        errEl.textContent = `❌ Gagal memuat data: ${err.message}. Pastikan server Django berjalan.`;
+      });
+  </script>
+
+</body>
+</html>

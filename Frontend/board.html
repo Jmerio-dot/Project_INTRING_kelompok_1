@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Board – Intelligence Engineering</title>
+  <link rel="stylesheet" href="app-theme.css" />
+  <style>
+    .board-filter-bar { display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="app-sidebar" id="sidebar"></aside>
+  <main class="app-main">
+    <div class="app-topbar">
+      <button class="btn-back" onclick="history.back()">← Kembali</button>
+      <div class="topbar-title-group">
+        <div class="breadcrumb"><a href="/projects.html">Proyek</a> / <span id="breadcrumb">—</span></div>
+        <h1 id="page-title">Board</h1>
+      </div>
+      <div class="board-filter-bar">
+        <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--text2);">
+          Sprint:
+          <select id="sprint-filter" class="filter-select" onchange="loadBoard()"></select>
+        </div>
+        <select id="assignee-filter" class="filter-select" onchange="renderBoard()">
+          <option value="">Semua Anggota</option>
+        </select>
+        <button class="btn-primary" onclick="location.href='create_issue.html?pid='+pid">+ Issue Cerdas</button>
+      </div>
+    </div>
+    <div class="app-content">
+      <div class="board-container" id="board-container"></div>
+    </div>
+  </main>
+</div>
+
+<!-- CREATE ISSUE MODAL -->
+<div id="create-issue-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="modal-title">✅ Create Issue</div>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input id="ci-title" class="form-input" placeholder="Issue title" />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select id="ci-type" class="form-select">
+          <option value="task">✅ Task</option>
+          <option value="story">📗 Story</option>
+          <option value="bug">🐛 Bug</option>
+          <option value="epic">⚡ Epic</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select id="ci-priority" class="form-select">
+          <option value="low">🟢 Low</option>
+          <option value="medium" selected>🟡 Medium</option>
+          <option value="high">🟠 High</option>
+          <option value="critical">🔴 Critical</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Assignee</label>
+      <select id="ci-assignee" class="form-select"><option value="">Unassigned</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea id="ci-desc" class="form-textarea" rows="3" placeholder="Describe the issue..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Story Points</label>
+      <input id="ci-sp" type="number" class="form-input" placeholder="e.g. 5" min="1" max="100" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline btn-sm" onclick="document.getElementById('create-issue-modal').style.display='none'">Cancel</button>
+      <button class="btn-primary btn-sm" onclick="createIssue()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ISSUE QUICK VIEW -->
+<div id="issue-quick-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal" style="max-width:460px;">
+    <div id="issue-quick-content"></div>
+    <div class="modal-actions" style="margin-top:1rem;">
+      <button class="btn-danger btn-sm" id="qv-delete-btn">Delete</button>
+      <button class="btn-outline btn-sm" onclick="document.getElementById('issue-quick-modal').style.display='none'">Close</button>
+      <a id="qv-detail-btn" href="#" class="btn-primary btn-sm" style="text-decoration:none;">Full Detail →</a>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="sidebar.js"></script>
+<script>
+  requireAuth();
+  const pid = new URLSearchParams(location.search).get('pid');
+  if (!pid) location.href = '/projects.html';
+
+  let boardData = {}, allMembers = [], currentSprintId = null;
+
+  const COLS = [
+    { key: 'todo',        label: 'To Do',       color: '#64748b' },
+    { key: 'in_progress', label: 'In Progress',  color: '#3b82f6' },
+    { key: 'in_review',   label: 'In Review',    color: '#a78bfa' },
+    { key: 'done',        label: 'Done',         color: '#22c55e' },
+  ];
+
+  async function init() {
+    const [project, members, sprints, allUsers] = await Promise.all([
+      apiFetch(`/projects/${pid}`),
+      apiFetch(`/projects/${pid}/members`),
+      apiFetch(`/projects/${pid}/sprints`),
+      apiFetch('/users'),
+    ]);
+    document.title = `${project.name} Board – Intelligence Engineering`;
+    document.getElementById('breadcrumb').textContent = project.name;
+    document.getElementById('page-title').textContent = 'Board';
+    allMembers = members;
+    renderSidebar('board', pid);
+
+    // Sprint filter
+    const sf = document.getElementById('sprint-filter');
+    sf.innerHTML = '<option value="">All Issues</option>' +
+      sprints.map(s => `<option value="${s.id}" ${s.status==='active'?'selected':''}>${s.name} (${s.status})</option>`).join('');
+    currentSprintId = sf.value;
+
+    // Assignee filter — use project members for filtering (who's actually assigned)
+    const af = document.getElementById('assignee-filter');
+    af.innerHTML = '<option value="">Semua Anggota</option>' +
+      members.map(m => `<option value="${m.id}">${m.avatar||'🙂'} ${m.name}</option>`).join('');
+
+    // CI Assignee — use ALL users so new projects can assign anyone
+    const ca = document.getElementById('ci-assignee');
+    ca.innerHTML = '<option value="">Unassigned</option>' +
+      allUsers.map(u => `<option value="${u.id}">${u.avatar||'🙂'} ${u.name}</option>`).join('');
+
+    await loadBoard();
+  }
+
+  async function loadBoard() {
+    const sid = document.getElementById('sprint-filter').value;
+    currentSprintId = sid || null;
+    const q = sid ? `?sprint_id=${sid}` : '';
+    boardData = await apiFetch(`/projects/${pid}/board${q}`);
+    renderBoard();
+  }
+
+  function renderBoard() {
+    const assigneeFilter = document.getElementById('assignee-filter').value;
+    const bc = document.getElementById('board-container');
+    bc.innerHTML = '';
+    COLS.forEach(col => {
+      let issues = boardData[col.key] || [];
+      if (assigneeFilter) issues = issues.filter(i => String(i.assignee_id) === assigneeFilter);
+      const colEl = document.createElement('div');
+      colEl.className = 'board-col';
+      colEl.innerHTML = `
+        <div class="board-col-header">
+          <div class="board-col-title">
+            <div style="width:10px;height:10px;border-radius:50%;background:${col.color};"></div>
+            ${col.label}
+          </div>
+          <span class="board-col-count">${issues.length}</span>
+        </div>
+        <div class="board-col-body" data-col="${col.key}" id="col-${col.key}">
+          ${issues.map(i => renderCard(i)).join('')}
+          ${issues.length===0?'<div style="text-align:center;padding:2rem 0.5rem;color:var(--text-muted);font-size:0.78rem;">Drop here</div>':''}
+        </div>
+      `;
+      bc.appendChild(colEl);
+      setupDrop(colEl.querySelector('.board-col-body'));
+    });
+    document.querySelectorAll('.issue-card').forEach(setupDrag);
+  }
+
+  function renderCard(issue) {
+    const labels = (issue.labels||'').split(',').filter(Boolean).map(l => `<span class="label-chip">${l.trim()}</span>`).join('');
+    return `
+      <div class="issue-card" draggable="true" data-id="${issue.id}" onclick="openQuickView(${issue.id})">
+        <div class="issue-card-key">${TYPE_ICON[issue.type]||'✅'} ${issue.issue_key}</div>
+        <div class="issue-card-title">${issue.title}</div>
+        ${labels ? `<div style="margin-bottom:0.5rem;">${labels}</div>` : ''}
+        <div class="issue-card-footer">
+          <div class="issue-card-meta">
+            <span>${PRIORITY_ICON[issue.priority]}</span>
+            ${issue.story_points ? `<span style="background:rgba(255,255,255,0.06);border-radius:4px;padding:0.1rem 0.4rem;">${issue.story_points}sp</span>` : ''}
+          </div>
+          <div class="issue-card-avatar" title="${issue.assignee_name||'Unassigned'}">
+            ${issue.assignee_avatar||issue.assignee_name?.charAt(0)||'?'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Drag & Drop ────────────────────────────────────────────────────────────
+  let dragId = null;
+  function setupDrag(card) {
+    card.addEventListener('dragstart', e => { dragId = card.dataset.id; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  }
+  function setupDrop(zone) {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', async e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      const newStatus = zone.dataset.col;
+      if (!dragId) return;
+      try {
+        await apiFetch(`/issues/${dragId}/status`, { method: 'PATCH', body: { status: newStatus } });
+        // Move card in local data
+        let movedIssue;
+        COLS.forEach(c => {
+          const idx = (boardData[c.key]||[]).findIndex(i=>String(i.id)===String(dragId));
+          if (idx !== -1) { [movedIssue] = boardData[c.key].splice(idx,1); }
+        });
+        if (movedIssue) { movedIssue.status = newStatus; boardData[newStatus] = boardData[newStatus]||[]; boardData[newStatus].push(movedIssue); }
+        renderBoard();
+        showToast(`Moved to ${STATUS_LABEL[newStatus]}`);
+      } catch(err) { showToast(err.message, 'error'); }
+    });
+  }
+
+  // ── Quick View ──────────────────────────────────────────────────────────────
+  async function openQuickView(id) {
+    const issue = await apiFetch(`/issues/${id}`);
+    document.getElementById('issue-quick-content').innerHTML = `
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:0.5rem;">${issue.issue_key} · ${issue.project_name}</div>
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:var(--ocean);">${issue.title}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;font-size:0.82rem;">
+        <div><div style="color:var(--muted);font-size:0.7rem;margin-bottom:0.2rem;">STATUS</div><span class="badge badge-${issue.status}">${STATUS_LABEL[issue.status]}</span></div>
+        <div><div style="color:var(--muted);font-size:0.7rem;margin-bottom:0.2rem;">PRIORITAS</div><span class="badge badge-${issue.priority}">${PRIORITY_ICON[issue.priority]} ${issue.priority}</span></div>
+        <div><div style="color:var(--muted);font-size:0.7rem;margin-bottom:0.2rem;">DITUGASKAN KE</div>${issue.assignee_name||'Belum ditugaskan'}</div>
+        <div><div style="color:var(--muted);font-size:0.7rem;margin-bottom:0.2rem;">PELAPOR</div>${issue.reporter_name}</div>
+        ${issue.story_points?`<div><div style="color:var(--muted);font-size:0.7rem;margin-bottom:0.2rem;">STORY POINTS</div>${issue.story_points}</div>`:''}
+        ${issue.due_date?`<div><div style="color:var(--muted);font-size:0.7rem;margin-bottom:0.2rem;">TENGGAT</div>${formatDate(issue.due_date)}</div>`:''}
+      </div>
+      ${issue.description?`<div style="margin-top:0.75rem;font-size:0.84rem;color:var(--text2);line-height:1.6;">${issue.description}</div>`:''}
+    `;
+    document.getElementById('qv-detail-btn').href = `/issue.html?id=${id}`;
+    document.getElementById('qv-delete-btn').onclick = async () => {
+      if (!confirm('Delete this issue?')) return;
+      await apiFetch(`/issues/${id}`, { method: 'DELETE' });
+      document.getElementById('issue-quick-modal').style.display = 'none';
+      showToast('Issue deleted');
+      loadBoard();
+    };
+    document.getElementById('issue-quick-modal').style.display = 'flex';
+  }
+
+  // ── Create Issue ──────────────────────────────────────────────────────────
+  function openCreateIssue() { document.getElementById('create-issue-modal').style.display = 'flex'; }
+
+  async function createIssue() {
+    const title = document.getElementById('ci-title').value.trim();
+    if (!title) return showToast('Title is required', 'error');
+    try {
+      const body = {
+        title, type: document.getElementById('ci-type').value,
+        priority: document.getElementById('ci-priority').value,
+        assignee_id: document.getElementById('ci-assignee').value || null,
+        description: document.getElementById('ci-desc').value,
+        story_points: document.getElementById('ci-sp').value || null,
+        sprint_id: currentSprintId || null, status: 'todo'
+      };
+      await apiFetch(`/projects/${pid}/issues`, { method: 'POST', body });
+      document.getElementById('create-issue-modal').style.display = 'none';
+      document.getElementById('ci-title').value = '';
+      showToast('Issue created!');
+      loadBoard();
+    } catch(e) { showToast(e.message, 'error'); }
+  }
+
+  init();
+</script>
+</body>
+</html>
+
+

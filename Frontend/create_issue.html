@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Intelligence Issue – IntRing PM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="app-theme.css" />
+  <style>
+    /* ── Wizard / Tabs Header ── */
+    .tabs-header {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 0.8rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+    }
+    .tab-btn.active {
+      color: var(--ocean);
+      border-bottom-color: var(--ocean);
+    }
+    .tab-btn:hover:not(.active) {
+      color: var(--cyan);
+      background: rgba(0,150,199,0.05);
+    }
+
+    /* ── Form Panels ── */
+    .tab-panel {
+      display: none;
+      animation: fade-in 0.3s ease;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Dynamic Tables/Lists ── */
+    .dyn-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .dyn-table th {
+      text-align: left;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dyn-table td {
+      padding: 0.75rem 0.5rem 0.75rem 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .dyn-table input, .dyn-table select {
+      width: 100%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: #0d2d4a;
+    }
+    .dyn-table input:focus { border-color: var(--cyan); outline: none; }
+    
+    .remove-row-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px; border: 1px solid #fca5a5;
+      background: #fff0f0; color: #dc2626; font-size: 0.9rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .remove-row-btn:hover { background: #fecaca; }
+
+    .add-row-btn {
+      color: var(--ocean);
+      font-size: 0.75rem; font-weight: 700;
+      background: none; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      padding: 0.5rem 0;
+    }
+    .add-row-btn:hover { color: var(--cyan); }
+
+    /* ── Sections ── */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--ocean);
+      margin-bottom: 0.25rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .section-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .card-section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Checkbox grids ── */
+    .checkbox-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .checkbox-item {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 1rem; border: 1px solid var(--border); border-radius: 10px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .checkbox-item:hover { border-color: var(--cyan); background: rgba(0,150,199,0.02); }
+    .checkbox-item input { margin-top: 0.25rem; }
+    .checkbox-item-title { font-weight: 700; font-size: 0.9rem; color: var(--ocean); }
+    .checkbox-item-desc { font-size: 0.75rem; color: var(--text2); margin-top: 0.25rem; }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .step-indicator { font-size: 0.85rem; font-weight: 700; color: var(--ocean); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="app-sidebar" id="sidebar"></aside>
+  <main class="app-main">
+    <div class="app-topbar">
+      <button class="btn-back" onclick="history.back()">← Kembali</button>
+      <div class="topbar-title-group">
+        <div class="breadcrumb"><a href="/projects.html">Proyek</a> / <span id="breadcrumb-project">—</span></div>
+        <h1 id="page-title">Buat Issue Cerdas</h1>
+      </div>
+    </div>
+    
+    <div class="app-content">
+      <div class="card" style="padding: 2rem;">
+        
+        <!-- Tabs Header -->
+        <div class="tabs-header" id="tabs">
+          <button class="tab-btn active" onclick="switchTab(1)">1. Basic Info</button>
+          <button class="tab-btn" onclick="switchTab(2)">2. Meaningful Objectives</button>
+          <button class="tab-btn" onclick="switchTab(3)">3. Intelligence Experiences</button>
+          <button class="tab-btn" onclick="switchTab(4)">4. Intelligence Implementation</button>
+        </div>
+
+        <form id="issue-form" onsubmit="submitIssue(event)">
+          
+          <!-- TAB 1: Basic Info -->
+          <div class="tab-panel active" id="tab-1">
+            <div class="card-section">
+              <div class="section-title">Informasi Dasar Issue</div>
+              <div class="form-group">
+                <label class="form-label">Judul Issue *</label>
+                <input type="text" id="basic-title" class="form-input" placeholder="Masukkan judul..." required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Deskripsi Singkat</label>
+                <textarea id="basic-desc" class="form-textarea" rows="3" placeholder="Deskripsi umum..."></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <div class="form-group">
+                  <label class="form-label">Tipe Issue</label>
+                  <select id="basic-type" class="form-select">
+                    <option value="story">Story</option>
+                    <option value="task">Task</option>
+                    <option value="bug">Bug</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Prioritas</label>
+                  <select id="basic-priority" class="form-select">
+                    <option value="high">High</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Meaningful Objectives -->
+          <div class="tab-panel" id="tab-2">
+            <div class="card-section">
+              <div class="section-title">Organizational Objectives *</div>
+              <div class="section-desc">Apa nilai bisnis utama yang ingin dicapai perusahaan melalui sistem cerdas ini?</div>
+              <div class="form-group">
+                <textarea id="mo-org-obj" class="form-textarea" rows="3" placeholder="Contoh: Meningkatkan pendapatan tenant kantin..." required></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <div class="form-group">
+                  <label class="form-label">Bagaimana cara mencapainya?</label>
+                  <textarea id="mo-org-how" class="form-textarea" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bagaimana cara mengukurnya?</label>
+                  <textarea id="mo-org-measure" class="form-textarea" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Leading Indicators * <button type="button" class="add-row-btn" onclick="addIndicatorRow()">+ Tambah Baris</button></div>
+              <div class="section-desc">Indikator metrik apa saja yang bisa memprediksi keberhasilan sistem ini dibandingkan dengan produk kompetitor?</div>
+              <table class="dyn-table" id="table-indicators">
+                <thead><tr><th>Fitur</th><th>Sistem Kita</th><th>Produk Kompetitor</th><th></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="ind-fitur" placeholder="Kecepatan Memilih Menu"></td>
+                    <td><input type="text" class="ind-kita" placeholder="< 10 detik"></td>
+                    <td><input type="text" class="ind-komp" placeholder="5 Menit"></td>
+                    <td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">User Outcomes *</div>
+              <div class="section-desc">Manfaat nyata apa yang akan dirasakan oleh pengguna saat berinteraksi dengan sistem ini?</div>
+              <div class="form-group">
+                <textarea id="mo-user-out" class="form-textarea" rows="3" placeholder="Siswa langsung mendapat pilihan makanan yang pas..." required></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <div class="form-group">
+                  <label class="form-label">Bagaimana cara mencapainya?</label>
+                  <textarea id="mo-user-how" class="form-textarea" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bagaimana cara mengukurnya?</label>
+                  <textarea id="mo-user-measure" class="form-textarea" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Model Properties *</div>
+              <div class="section-desc">Spesifikasi teknis dan kriteria akurasi yang harus dipenuhi oleh model AI/Machine Learning-nya.</div>
+              <div class="form-group">
+                <textarea id="mo-model-prop" class="form-textarea" rows="3" placeholder="Model rekomendasi harus mampu memberikan saran real-time..." required></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                <div class="form-group">
+                  <label class="form-label">Bagaimana cara mencapainya?</label>
+                  <textarea id="mo-model-how" class="form-textarea" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bagaimana cara mengukurnya?</label>
+                  <textarea id="mo-model-measure" class="form-textarea" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: Intelligence Experiences -->
+          <div class="tab-panel" id="tab-3">
+            <div class="card-section">
+              <div class="section-title">Penyajian Kecerdasan *</div>
+              <div class="section-desc">Pilih satu atau lebih cara penyajian AI ke user.</div>
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="ie-cb-automate" value="Automate">
+                  <div>
+                    <div class="checkbox-item-title">Automate</div>
+                    <div class="checkbox-item-desc">Sistem otomatis melakukan aksi tanpa diminta</div>
+                  </div>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="ie-cb-prompt" value="Prompt">
+                  <div>
+                    <div class="checkbox-item-title">Prompt</div>
+                    <div class="checkbox-item-desc">User input, sistem memberikan jawaban</div>
+                  </div>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="ie-cb-org" value="Organisation">
+                  <div>
+                    <div class="checkbox-item-title">Organisation</div>
+                    <div class="checkbox-item-desc">Mengorganisir informasi secara cerdas</div>
+                  </div>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="ie-cb-annotate" value="Annotate">
+                  <div>
+                    <div class="checkbox-item-title">Annotate</div>
+                    <div class="checkbox-item-desc">Memberikan label/anotasi pada data</div>
+                  </div>
+                </label>
+              </div>
+              <textarea id="ie-presentation-desc" class="form-textarea" rows="2" placeholder="Jelaskan interaksi AI dengan user..."></textarea>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Fungsi-fungsi Realisasi Objectives * <button type="button" class="add-row-btn" onclick="addFuncRow('table-fungsi')">+ Tambah Fungsi</button></div>
+              <div class="section-desc">Rincian fungsi spesifik apa saja yang perlu dibangun untuk merealisasikan tujuan di atas.</div>
+              <table class="dyn-table" id="table-fungsi">
+                <thead><tr><th width="30%">Nama Fungsi</th><th>Deskripsi</th><th width="50px"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="fn-name" placeholder="Nama Fungsi"></td>
+                    <td><input type="text" class="fn-desc" placeholder="Deskripsi..."></td>
+                    <td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Minimalisasi Kesalahan * <button type="button" class="add-row-btn" onclick="addFuncRow('table-error')">+ Tambah Strategi</button></div>
+              <div class="section-desc">Bagaimana sistem menangani potensi kesalahan dari prediksi AI agar tidak fatal.</div>
+              <table class="dyn-table" id="table-error">
+                <thead><tr><th width="30%">Nama Fungsi</th><th>Strategi Mitigasi</th><th width="50px"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="err-name" placeholder="Nama Fungsi"></td>
+                    <td><input type="text" class="err-strat" placeholder="Strategi mitigasi..."></td>
+                    <td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Pengumpulan Data untuk Perbaikan * <button type="button" class="add-row-btn" onclick="addFuncRow('table-data')">+ Tambah Rencana</button></div>
+              <div class="section-desc">Bagaimana cara sistem mengumpulkan data baru secara berkala untuk melatih ulang (re-train) model.</div>
+              <table class="dyn-table" id="table-data">
+                <thead><tr><th width="30%">Nama Fungsi</th><th>Rencana Pengumpulan Data</th><th width="50px"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="data-name" placeholder="Nama Fungsi"></td>
+                    <td><input type="text" class="data-plan" placeholder="Rencana pengumpulan data..."></td>
+                    <td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 4: Intelligence Implementation -->
+          <div class="tab-panel" id="tab-4">
+            <div class="card-section">
+              <div class="section-title">Proses Bisnis Sistem Cerdas * <button type="button" class="add-row-btn" onclick="addFuncRow('table-bp')">+ Tambah Proses</button></div>
+              <div class="section-desc">Alur kerja atau tahapan proses yang terjadi di dalam sistem ini secara berurutan.</div>
+              <table class="dyn-table" id="table-bp">
+                <thead><tr><th width="30%">Nama Proses</th><th>Deskripsi</th><th width="50px"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="bp-name" placeholder="Nama Proses"></td>
+                    <td><input type="text" class="bp-desc" placeholder="Deskripsi proses..."></td>
+                    <td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Teknologi per Proses * <button type="button" class="add-row-btn" onclick="addFuncRow('table-tech')">+ Tambah Teknologi</button></div>
+              <div class="section-desc">Teknologi yang digunakan untuk setiap proses.</div>
+              <table class="dyn-table" id="table-tech">
+                <thead><tr><th width="30%">Nama Proses</th><th>Teknologi</th><th width="50px"></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" class="tech-proc" placeholder="Nama Proses"></td>
+                    <td><input type="text" class="tech-stack" placeholder="Contoh: Python, Pandas, dsb"></td>
+                    <td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-section">
+              <div class="section-title">Upload Diagram Proses Bisnis</div>
+              <div style="border: 2px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; margin-top: 1rem; color: var(--muted); cursor: pointer;" onclick="document.getElementById('file-upload').click()">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">↑</div>
+                <div style="font-weight: 600; color: var(--ocean);" id="file-name-display">Drag & drop file di sini atau <span style="color:var(--cyan);text-decoration:underline;">pilih file</span></div>
+                <div style="font-size: 0.75rem; margin-top: 0.25rem;">Format: JPG, PNG, PDF (Maks 5MB)</div>
+                <input type="file" id="file-upload" style="display:none;" onchange="document.getElementById('file-name-display').innerHTML = this.files[0] ? 'File terpilih: <span style=\'color:var(--cyan);\'>' + this.files[0].name + '</span>' : 'Drag & drop file di sini atau <span style=\'color:var(--cyan);text-decoration:underline;\'>pilih file</span>'" />
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom-nav">
+            <button type="button" class="btn-outline" id="btn-prev" onclick="prevTab()" style="display:none;">← Sebelumnya</button>
+            <div class="step-indicator" id="step-indicator">1 / 4</div>
+            <button type="button" class="btn-primary" id="btn-next" onclick="nextTab()">Selanjutnya →</button>
+            <button type="submit" class="btn-primary" id="btn-submit" style="display:none;background:#10b981;border-color:#10b981;">✅ Simpan Issue & Kirim</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script src="sidebar.js"></script>
+<script>
+  if (!requireAuth()) { /* nothing */ }
+  const pid = new URLSearchParams(location.search).get('pid');
+  if (!pid) location.href = '/projects.html';
+  renderSidebar('board', pid);
+
+  let currentTab = 1;
+  const totalTabs = 4;
+
+  function switchTab(step) {
+    if (step > currentTab && !validateCurrentTab()) return; // Prevent skipping if invalid
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i+1 === step));
+    document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i+1 === step));
+    
+    currentTab = step;
+    document.getElementById('step-indicator').textContent = `${currentTab} / ${totalTabs}`;
+    
+    document.getElementById('btn-prev').style.display = currentTab > 1 ? 'inline-block' : 'none';
+    
+    if (currentTab === totalTabs) {
+      document.getElementById('btn-next').style.display = 'none';
+      document.getElementById('btn-submit').style.display = 'inline-block';
+    } else {
+      document.getElementById('btn-next').style.display = 'inline-block';
+      document.getElementById('btn-submit').style.display = 'none';
+    }
+  }
+
+  function nextTab() { if (currentTab < totalTabs) switchTab(currentTab + 1); }
+  function prevTab() { if (currentTab > 1) switchTab(currentTab - 1); }
+
+  function validateCurrentTab() {
+    // Basic validation implementation. For full production, add strict checks.
+    if (currentTab === 1 && !document.getElementById('basic-title').value.trim()) {
+      showToast('Judul Issue wajib diisi.', 'error'); return false;
+    }
+    return true;
+  }
+
+
+
+  function addIndicatorRow() {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input type="text" class="ind-fitur"></td><td><input type="text" class="ind-kita"></td><td><input type="text" class="ind-komp"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+    document.getElementById('table-indicators').querySelector('tbody').appendChild(tr);
+  }
+
+  function addFuncRow(tableId) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input type="text" class="col-1"></td><td><input type="text" class="col-2"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+    document.getElementById(tableId).querySelector('tbody').appendChild(tr);
+  }
+
+  function extractTableData(tableId, cls1, cls2, cls3) {
+    return Array.from(document.getElementById(tableId).querySelectorAll('tbody tr')).map(tr => {
+      const inputs = tr.querySelectorAll('input');
+      return { 
+        col1: cls1 ? (tr.querySelector('.'+cls1)?.value || inputs[0]?.value) : '', 
+        col2: cls2 ? (tr.querySelector('.'+cls2)?.value || inputs[1]?.value) : '', 
+        col3: cls3 ? (tr.querySelector('.'+cls3)?.value || inputs[2]?.value) : '' 
+      };
+    }).filter(d => d.col1 || d.col2);
+  }
+
+  async function submitIssue(e) {
+    e.preventDefault();
+    if (!validateCurrentTab()) return;
+
+    // Collect Data
+    const meaningful_objectives = {
+      organizational: { obj: document.getElementById('mo-org-obj').value, how: document.getElementById('mo-org-how').value, measure: document.getElementById('mo-org-measure').value },
+      leading_indicators: extractTableData('table-indicators', 'ind-fitur', 'ind-kita', 'ind-komp'),
+      user_outcomes: { obj: document.getElementById('mo-user-out').value, how: document.getElementById('mo-user-how').value, measure: document.getElementById('mo-user-measure').value },
+      model_properties: { obj: document.getElementById('mo-model-prop').value, how: document.getElementById('mo-model-how').value, measure: document.getElementById('mo-model-measure').value }
+    };
+
+    const intelligence_experience = {
+      presentation: {
+        automate: document.getElementById('ie-cb-automate').checked,
+        prompt: document.getElementById('ie-cb-prompt').checked,
+        organisation: document.getElementById('ie-cb-org').checked,
+        annotate: document.getElementById('ie-cb-annotate').checked,
+        desc: document.getElementById('ie-presentation-desc').value
+      },
+      functions: extractTableData('table-fungsi', 'fn-name', 'fn-desc'),
+      error_mitigation: extractTableData('table-error', 'err-name', 'err-strat'),
+      data_collection: extractTableData('table-data', 'data-name', 'data-plan')
+    };
+
+    const intelligence_implementation = {
+      business_process: extractTableData('table-bp', 'bp-name', 'bp-desc'),
+      technology: extractTableData('table-tech', 'tech-proc', 'tech-stack')
+    };
+
+    const payload = {
+      title: document.getElementById('basic-title').value,
+      description: document.getElementById('basic-desc').value,
+      type: document.getElementById('basic-type').value,
+      priority: document.getElementById('basic-priority').value,
+      meaningful_objectives,
+      intelligence_experience,
+      intelligence_implementation,
+      creation_status: { progress: 0, modules: [] } // default for new issues
+    };
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+    try {
+      // 1. Create issue in our backend
+      const res = await apiFetch(`/projects/${pid}/issues`, { method: 'POST', body: payload });
+      
+      // 2. Upload diagram file if exists
+      const fileInput = document.getElementById('file-upload');
+      if (fileInput.files.length > 0) {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        try {
+          await apiFetch(`/issues/${res.id}/attachments`, { method: 'POST', body: formData });
+        } catch(e) {
+          console.error("Gagal upload file:", e);
+        }
+      }
+
+      // 3. Mock: Send to external Intelligence Creation Team API
+      await apiFetch(`/integration/send-to-creation`, { 
+        method: 'POST', 
+        body: { issue_id: res.id, project_id: pid }
+      }).catch(e => console.warn('Mock external API skipped:', e));
+
+      showToast('Issue cerdas berhasil dibuat & dikirim ke Intelligence Creation!');
+      setTimeout(() => location.href = `board.html?pid=${pid}`, 1500);
+    } catch(err) {
+      showToast(err.message, 'error');
+      btn.disabled = false; btn.textContent = '✅ Simpan Issue & Kirim';
+    }
+  }
+
+  // Fetch Project Name for breadcrumb
+  apiFetch(`/projects/${pid}`).then(p => {
+    document.getElementById('breadcrumb-project').textContent = p.name;
+    document.title = `Buat Issue - ${p.name}`;
+  });
+
+</script>
+</body>
+</html>

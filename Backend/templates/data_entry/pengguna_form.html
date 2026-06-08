@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}{{ title }}{% endblock %}
+{% block nav_pengguna %}active{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center gap-2">
+    <a href="{% url 'pengguna_list' %}" class="btn btn-sm btn-outline-secondary mr-2">
+      <i class="bi bi-arrow-left"></i> Kembali
+    </a>
+    <h1>👤 {{ title }}</h1>
+  </div>
+</div>
+
+<div class="p-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card">
+        <div class="card-header">
+          <i class="bi bi-person-plus-fill text-primary"></i>
+          {% if pengguna %}Edit data pengguna: <strong>{{ pengguna.nama_lengkap }}</strong>{% else %}Isi data pengguna baru{% endif %}
+        </div>
+        <div class="card-body">
+          {% crispy form %}
+          <div class="mt-3">
+            <a href="{% url 'pengguna_list' %}" class="btn btn-secondary btn-lg">← Batal</a>
+          </div>
+        </div>
+      </div>
+
+      {% if not pengguna %}
+      <div class="alert alert-info mt-3 small">
+        <strong><i class="bi bi-info-circle"></i> Info Relasi Parent-Child:</strong>
+        Pengguna adalah <strong>entitas induk (parent)</strong>. Setiap konten yang dibuat akan terhubung ke pengguna ini.
+        Jika pengguna ini dihapus, semua kontennya akan <strong>ikut terhapus otomatis</strong> (ON DELETE CASCADE).
+      </div>
+      {% else %}
+      <div class="alert alert-warning mt-3 small">
+        <strong><i class="bi bi-exclamation-triangle"></i> Perhatian:</strong>
+        Pengguna ini memiliki <strong>{{ pengguna.contents.count }} konten</strong>.
+        Jika dihapus, semua konten tersebut akan ikut terhapus.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

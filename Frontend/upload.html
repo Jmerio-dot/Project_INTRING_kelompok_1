@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Project – Intelligence Engineering</title>
+  <meta name="description" content="Share your project files and let us help bring your AI vision to life." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .upload-page-body { background: var(--bg-primary); }
+    .upload-content { max-width: 700px; margin: 0 auto; padding: 2rem; }
+    .form-input-icon { position: relative; }
+    .form-input-icon .icon { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .form-input-icon .form-input { padding-left: 2.5rem; }
+    #drop-zone.drag-over { border-color: var(--cyan); background: rgba(0,212,255,0.06); }
+    .file-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .file-item { display: flex; align-items: center; gap: 0.5rem; background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.15); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.82rem; color: var(--text-secondary); }
+    .file-item span { flex: 1; }
+    .file-item button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; }
+    .submit-wrap { text-align: center; margin-top: 1.5rem; }
+    .btn-submit { background: var(--gradient); border: none; border-radius: 50px; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; padding: 0.875rem 2.5rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s; }
+    .btn-submit:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: var(--glow-purple); }
+  </style>
+</head>
+<body class="upload-page-body">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand-icon">⚡</div>
+    Intelligence Engineering
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="services.html">Services</a></li>
+    <li><a href="upload.html" class="active">Upload Project</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="nav-search">🔍</button>
+    <a href="login.html" class="btn-nav">👤 Pengguna Demo</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero" style="padding-bottom: 2rem;">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-content">
+    <h1 class="page-hero-title" style="background: linear-gradient(90deg, #00d4ff, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Upload Your Project</h1>
+    <p class="page-hero-sub">Share your project files and let us help bring your AI vision to life</p>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="upload-content">
+
+  <!-- Project Details -->
+  <div class="form-card">
+    <div class="form-card-title">
+      <span style="font-size:1.2rem;">📤</span> Project Details
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="proj-name">Project Name</label>
+      <input id="proj-name" type="text" class="form-input" placeholder="Enter your project name" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="proj-cat">Project Category</label>
+      <select id="proj-cat" class="form-select">
+        <option value="" disabled selected></option>
+        <option value="ai">Artificial Intelligence</option>
+        <option value="ml">Machine Learning</option>
+        <option value="cv">Computer Vision</option>
+        <option value="nlp">Natural Language Processing</option>
+        <option value="data">Data Engineering</option>
+        <option value="quantum">Quantum Computing</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="proj-desc">Project Description</label>
+      <textarea id="proj-desc" class="form-textarea" placeholder="Describe your project requirements..."></textarea>
+    </div>
+  </div>
+
+  <!-- Upload Files -->
+  <div class="form-card">
+    <div class="form-card-title">
+      <span style="font-size:1.2rem;">📁</span> Upload Files
+    </div>
+    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div class="upload-zone-icon">⬆️</div>
+      <p>Drag &amp; drop files here</p>
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-top:0.3rem;">or click to browse</p>
+      <span>Supports: Documents, Images, Code Files, Databases</span>
+    </div>
+    <input type="file" id="file-input" multiple style="display:none;" accept="*/*" />
+    <div class="file-list" id="file-list"></div>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="btn-submit" id="submit-btn" onclick="handleSubmit()">⬆ Submit Project</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="margin-top: 3rem;">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand"><span style="font-size:1.2rem;">⚡</span> Intelligence Engineering</div>
+      <p class="footer-desc">Empowering businesses with innovative technology solutions for the modern world.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Roadmap</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Cookies</a></li>
+        <li><a href="#">Licenses</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Intelligence Engineering. All rights reserved.</div>
+</footer>
+
+<script>
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileList = document.getElementById('file-list');
+  let selectedFiles = [];
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    addFiles([...e.dataTransfer.files]);
+  });
+  fileInput.addEventListener('change', () => addFiles([...fileInput.files]));
+
+  function addFiles(files) {
+    files.forEach(f => { if (!selectedFiles.find(x => x.name === f.name)) selectedFiles.push(f); });
+    renderFileList();
+  }
+
+  function renderFileList() {
+    fileList.innerHTML = '';
+    selectedFiles.forEach((f, i) => {
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.innerHTML = `<span>📄</span><span>${f.name}</span><span style="color:var(--text-muted);font-size:0.72rem;">${(f.size/1024).toFixed(1)} KB</span><button onclick="removeFile(${i})">✕</button>`;
+      fileList.appendChild(div);
+    });
+  }
+
+  function removeFile(i) { selectedFiles.splice(i, 1); renderFileList(); }
+
+  function handleSubmit() {
+    const name = document.getElementById('proj-name').value.trim();
+    const cat = document.getElementById('proj-cat').value;
+    const desc = document.getElementById('proj-desc').value.trim();
+    if (!name || !cat || !desc) {
+      alert('Please fill in all project details before submitting.');
+      return;
+    }
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = '✅ Project Submitted!';
+    btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = '⬆ Submit Project';
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 3000);
+  }
+</script>
+</body>
+</html>

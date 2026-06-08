@@ -1,0 +1,20 @@
+with open('dashboard.html', 'r', encoding='utf-8') as f:
+    d = f.read()
+
+with open('projects.html', 'r', encoding='utf-8') as f:
+    p = f.read()
+
+d_modal = d.split('<!-- CREATE PROJECT WIZARD MODAL -->')[1].split('<script src="app.js">')[0]
+p_parts = p.split('CREATE PROJECT WIZARD MODAL')
+p_after_modal = p_parts[1].split('<script src="app.js">')[1]
+
+p = p_parts[0][:p_parts[0].rfind('<!--')] + '<!-- CREATE PROJECT WIZARD MODAL -->' + d_modal + '<script src="app.js">' + p_after_modal
+
+d_js = d.split('Wizard State')[1].split('async function fetchDashboardData()')[0]
+p_js_parts = p.split('Wizard State')
+p_after_js = p_js_parts[1].split('Load Projects')[1]
+
+p = p_js_parts[0][:p_js_parts[0].rfind('//')] + '// \u2500\u2500 Wizard State' + d_js + '// \u2500\u2500 Load Projects' + p_after_js
+
+with open('projects.html', 'w', encoding='utf-8') as f:
+    f.write(p)

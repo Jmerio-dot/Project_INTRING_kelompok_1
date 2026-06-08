@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ title }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── SCREEN STYLES ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      color: #0c4a6e;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .print-header {
+      background: linear-gradient(135deg, #023e8a, #0077b6);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .print-header h1 { font-size: 1.6rem; font-weight: 800; }
+    .print-header p  { font-size: 0.85rem; opacity: 0.85; margin-top: 0.3rem; }
+    .btn-cetak {
+      background: white;
+      color: #023e8a;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-cetak:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .btn-back {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.25); }
+    .header-left a { margin-bottom: 0.75rem; display: inline-block; }
+
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #bae6fd;
+    }
+    .stat-number { font-size: 2rem; font-weight: 800; color: #0077b6; }
+    .stat-label  { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
+
+    /* Table */
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #bae6fd;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #023e8a;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #bae6fd;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+      background: linear-gradient(135deg, #023e8a, #0077b6);
+      color: white;
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      font-weight: 600;
+    }
+    th:first-child { border-radius: 6px 0 0 6px; }
+    th:last-child  { border-radius: 0 6px 6px 0; }
+    td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid #e0f2fe;
+      color: #1e3a5f;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f0f9ff; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .badge-todo       { background: #f1f5f9; color: #475569; }
+    .badge-progress   { background: #dbeafe; color: #1d4ed8; }
+    .badge-review     { background: #ede9fe; color: #7c3aed; }
+    .badge-done       { background: #dcfce7; color: #15803d; }
+    .badge-critical   { background: #fee2e2; color: #dc2626; }
+    .badge-high       { background: #ffedd5; color: #ea580c; }
+    .badge-medium     { background: #fef9c3; color: #ca8a04; }
+    .badge-low        { background: #dcfce7; color: #16a34a; }
+
+    /* ── PRINT STYLES — Praktikum 9 @media print ── */
+    @media print {
+      body {
+        background: white !important;
+        padding: 0;
+        color: #000;
+        font-size: 11pt;
+      }
+      .btn-cetak,
+      .btn-back,
+      .no-print { display: none !important; }
+      .print-header {
+        background: none !important;
+        color: #000 !important;
+        border: 2px solid #023e8a;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      .print-header h1 { color: #023e8a !important; }
+      .print-header p  { color: #475569 !important; }
+      .stat-card { box-shadow: none; border: 1px solid #ccc; }
+      .section-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+      th { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      @page { margin: 1.5cm; size: A4; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="print-header">
+    <div class="header-left">
+      <a href="javascript:history.back()" class="btn-back no-print">← Kembali</a>
+      <h1>⚡ {{ title }}</h1>
+      {% if project %}
+      <p>Project Key: <strong>{{ project.key }}</strong> &nbsp;|&nbsp; Status: {{ project.status|title }} &nbsp;|&nbsp; Owner: {{ project.owner.name }}</p>
+      {% else %}
+      <p>Laporan semua proyek — IntRing Project Management</p>
+      {% endif %}
+    </div>
+    <!-- Tombol cetak — disembunyikan saat @media print -->
+    <button class="btn-cetak no-print" onclick="window.print()">
+      🖨️ Cetak / Simpan PDF
+    </button>
+  </div>
+
+  <!-- STATISTIK -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.total }}</div>
+      <div class="stat-label">Total Issue</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:#64748b">{{ stats.todo }}</div>
+      <div class="stat-label">To Do</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:#1d4ed8">{{ stats.in_progress }}</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:#7c3aed">{{ stats.in_review }}</div>
+      <div class="stat-label">In Review</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color:#15803d">{{ stats.done }}</div>
+      <div class="stat-label">Done ({{ stats.completion_rate }}%)</div>
+    </div>
+  </div>
+
+  <!-- TABEL ISSUE -->
+  {% if issues %}
+  <div class="section-card">
+    <div class="section-title">📋 Daftar Issue{% if project %} — {{ project.name }}{% endif %}</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Issue Key</th>
+          <th>Judul</th>
+          <th>Tipe</th>
+          <th>Status</th>
+          <th>Prioritas</th>
+          <th>Assignee</th>
+          <th>Sprint</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for issue in issues %}
+        <tr>
+          <td><strong>{{ issue.issue_key }}</strong></td>
+          <td>{{ issue.title }}</td>
+          <td>{{ issue.get_type_display }}</td>
+          <td>
+            <span class="badge
+              {% if issue.status == 'todo' %}badge-todo
+              {% elif issue.status == 'in_progress' %}badge-progress
+              {% elif issue.status == 'in_review' %}badge-review
+              {% elif issue.status == 'done' %}badge-done
+              {% endif %}">
+              {{ issue.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <span class="badge badge-{{ issue.priority }}">{{ issue.priority|title }}</span>
+          </td>
+          <td>{{ issue.assignee.name|default:"—" }}</td>
+          <td>{{ issue.sprint.name|default:"Backlog" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- SPRINT INFO -->
+  {% if sprints %}
+  <div class="section-card">
+    <div class="section-title">🏃 Sprint</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Sprint</th>
+          <th>Status</th>
+          <th>Tujuan</th>
+          <th>Mulai</th>
+          <th>Selesai</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sprint in sprints %}
+        <tr>
+          <td><strong>{{ sprint.name }}</strong></td>
+          <td>{{ sprint.status|title }}</td>
+          <td>{{ sprint.goal|default:"—" }}</td>
+          <td>{{ sprint.start_date|date:"d M Y"|default:"—" }}</td>
+          <td>{{ sprint.end_date|date:"d M Y"|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="section-card no-print" style="text-align:center; color:#64748b; font-size:0.8rem;">
+    Laporan dibuat oleh IntRing Project Management &nbsp;·&nbsp; {{ "now"|date:"d M Y H:i" }}
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Daftar Konten{% endblock %}
+{% block nav_content %}active{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex align-items-center justify-content-between">
+  <h1><i class="bi bi-file-earmark-text-fill"></i> Daftar Konten</h1>
+  <a href="{% url 'set_content' %}" class="btn btn-success">
+    <i class="bi bi-file-earmark-plus"></i> Tambah Konten
+  </a>
+</div>
+
+<div class="p-4">
+  <!-- Filter -->
+  <form method="get" class="card card-body mb-4">
+    <div class="row">
+      <div class="col-md-4 mb-2">
+        <input type="text" name="q" class="form-control" placeholder="Cari judul, artikel..." value="{{ query }}">
+      </div>
+      <div class="col-md-2 mb-2">
+        <select name="set_view" class="form-control">
+          <option value="">Semua Status</option>
+          <option value="publish" {% if set_view == 'publish' %}selected{% endif %}>Publish</option>
+          <option value="not_publish" {% if set_view == 'not_publish' %}selected{% endif %}>Not Publish</option>
+        </select>
+      </div>
+      <div class="col-md-3 mb-2">
+        <select name="author" class="form-control">
+          <option value="">Semua Penulis</option>
+          {% for p in pengguna_list %}
+          <option value="{{ p.pk }}" {% if request.GET.author == p.pk|stringformat:"s" %}selected{% endif %}>
+            {{ p.email }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3 mb-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary mr-2"><i class="bi bi-search"></i> Filter</button>
+        <a href="{% url 'content_list' %}" class="btn btn-outline-secondary">Reset</a>
+      </div>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-header">
+      <i class="bi bi-table"></i> Data Konten ({{ total }} total)
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead><tr>
+          <th>ID</th><th>JUDUL</th><th>PENULIS (AUTHOR)</th>
+          <th>STATUS</th><th>KATEGORI</th><th>DIBUAT</th><th>AKSI</th>
+        </tr></thead>
+        <tbody>
+          {% for c in page_obj %}
+          <tr>
+            <td><small class="text-muted">#{{ c.id }}</small></td>
+            <td>
+              <a href="{% url 'content_detail' c.pk %}" class="font-weight-bold text-dark text-decoration-none">
+                {{ c.judul|truncatechars:45 }}
+              </a>
+            </td>
+            <td>
+              <!-- Tampilkan email penulis (sesuai __str__ Pengguna yang return email) -->
+              <a href="{% url 'pengguna_detail' c.author.pk %}" class="text-decoration-none">
+                <span class="badge badge-light border">{{ c.author.email }}</span>
+              </a>
+            </td>
+            <td>
+              <span class="badge badge-{% if c.set_view == 'publish' %}publish{% else %}not_publish{% endif %}">
+                {{ c.get_set_view_display }}
+              </span>
+            </td>
+            <td><small>{{ c.get_kategori_display }}</small></td>
+            <td><small>{{ c.date_created|date:"d M Y" }}</small></td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'content_detail' c.pk %}" class="btn btn-outline-primary" title="Detail"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'edit_content' c.pk %}" class="btn btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'hapus_content' c.pk %}" class="btn btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">
+              <i class="bi bi-inbox" style="font-size:2rem;"></i><br>
+              Belum ada konten.
+              <a href="{% url 'set_content' %}">Buat sekarang</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer">
+      <ul class="pagination pagination-sm mb-0 justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&set_view={{ set_view }}">‹</a></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}&q={{ query }}&set_view={{ set_view }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&set_view={{ set_view }}">›</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

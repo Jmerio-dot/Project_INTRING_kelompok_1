@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Hapus Konten{% endblock %}
+{% block nav_content %}active{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>🗑️ Hapus Konten</h1></div>
+<div class="p-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white"><strong>Konfirmasi Hapus Konten</strong></div>
+        <div class="card-body">
+          <p>Anda akan menghapus konten:</p>
+          <ul>
+            <li><strong>Judul:</strong> {{ content.judul }}</li>
+            <li><strong>Penulis:</strong> {{ content.author.email }}</li>
+            <li><strong>Status:</strong> {{ content.get_set_view_display }}</li>
+          </ul>
+          <div class="alert alert-warning small">
+            Tindakan ini tidak dapat dibatalkan. Konten akan dihapus secara permanen.
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">🗑️ Ya, Hapus Konten</button>
+            <a href="{% url 'content_list' %}" class="btn btn-secondary ml-2">Batal</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

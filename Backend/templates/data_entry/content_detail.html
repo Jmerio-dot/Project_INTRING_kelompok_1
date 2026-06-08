@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ content.judul }}{% endblock %}
+{% block nav_content %}active{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex align-items-center justify-content-between">
+  <div class="d-flex align-items-center">
+    <a href="{% url 'content_list' %}" class="btn btn-sm btn-outline-secondary mr-3">← Kembali</a>
+    <h1>📄 {{ content.judul|truncatechars:50 }}</h1>
+  </div>
+  <div>
+    <a href="{% url 'edit_content' content.pk %}" class="btn btn-warning mr-2">
+      <i class="bi bi-pencil"></i> Edit
+    </a>
+    <a href="{% url 'hapus_content' content.pk %}" class="btn btn-danger">
+      <i class="bi bi-trash"></i> Hapus
+    </a>
+  </div>
+</div>
+
+<div class="p-4">
+  <div class="row">
+    <!-- Main Article -->
+    <div class="col-md-8 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+            <span class="badge badge-{% if content.set_view == 'publish' %}publish{% else %}not_publish{% endif %} px-3 py-2">
+              {% if content.set_view == 'publish' %}🟢{% else %}🔴{% endif %} {{ content.get_set_view_display }}
+            </span>
+            <span class="badge badge-light border">{{ content.get_kategori_display }}</span>
+            <small class="text-muted"><i class="bi bi-eye"></i> {{ content.view_count }} kali dilihat</small>
+          </div>
+          {% if content.ringkasan %}
+          <div class="p-3 rounded mb-4" style="background:#e8f4ff;border-left:4px solid #0077b6;">
+            <strong>Ringkasan:</strong> {{ content.ringkasan }}
+          </div>
+          {% endif %}
+          {% if content.thumbnail %}
+          <img src="{{ content.thumbnail.url }}" class="img-fluid rounded mb-4" alt="Thumbnail">
+          {% endif %}
+          <div style="line-height:1.8;color:#2d3748;">{{ content.article|linebreaks }}</div>
+          {% if content.tags_list %}
+          <div class="mt-4">
+            {% for tag in content.tags_list %}
+            <span class="badge badge-secondary mr-1"># {{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header"><i class="bi bi-info-circle"></i> Info Konten</div>
+        <div class="card-body">
+          <table class="table table-sm table-borderless">
+            <tr><td class="text-muted">ID</td><td><code>#{{ content.id }}</code></td></tr>
+            <tr><td class="text-muted">Dibuat</td><td>{{ content.date_created|date:"d M Y H:i" }}</td></tr>
+            <tr><td class="text-muted">Diperbarui</td><td>{{ content.diperbarui|date:"d M Y H:i" }}</td></tr>
+            <tr><td class="text-muted">Status</td>
+                <td><span class="badge badge-{% if content.set_view == 'publish' %}publish{% else %}not_publish{% endif %}">{{ content.get_set_view_display }}</span></td></tr>
+            <tr><td class="text-muted">Kategori</td><td>{{ content.get_kategori_display }}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Penulis (Parent Link) -->
+      <div class="card">
+        <div class="card-header"><i class="bi bi-person-circle"></i> Penulis (Parent)</div>
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold"
+                 style="width:48px;height:48px;background:linear-gradient(135deg,#0077b6,#48cae4);flex-shrink:0;font-size:1.1rem;">
+              {{ content.author.nama_lengkap|first|upper }}
+            </div>
+            <div>
+              <div class="font-weight-bold">{{ content.author.nama_lengkap }}</div>
+              <small class="text-muted">{{ content.author.email }}</small>
+            </div>
+          </div>
+          <a href="{% url 'pengguna_detail' content.author.pk %}" class="btn btn-sm btn-outline-primary btn-block">
+            <i class="bi bi-person-lines-fill"></i> Lihat Profil Penulis
+          </a>
+          <a href="{% url 'content_list' %}?author={{ content.author.pk }}" class="btn btn-sm btn-outline-secondary btn-block mt-1">
+            <i class="bi bi-collection"></i> Konten Lain Penulis Ini
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

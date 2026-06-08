@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Intelligence Engineering</title>
+  <link rel="stylesheet" href="app-theme.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Wizard Stepper ── */
+    .wizard-stepper { display:flex;align-items:center;gap:0;margin-bottom:1.75rem; }
+    .wizard-step { display:flex;align-items:center;gap:0.45rem;position:relative; }
+    .step-circle { width:32px;height:32px;border-radius:50%;border:2.5px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:800;color:#9ca3af;flex-shrink:0;transition:all 0.3s; }
+    .step-circle.active  { background:#0077b6;border-color:#0077b6;color:#fff;box-shadow:0 0 0 4px rgba(0,119,182,0.15); }
+    .step-circle.done    { background:#22c55e;border-color:#22c55e;color:#fff; }
+    .step-label { font-size:0.78rem;font-weight:600;color:#9ca3af;white-space:nowrap;transition:color 0.3s; }
+    .step-label.active { color:#0077b6; }
+    .step-label.done   { color:#15803d; }
+    .step-connector { flex:1;height:2.5px;background:#e5e7eb;margin:0 0.5rem;min-width:28px;border-radius:2px;transition:background 0.3s; }
+    .step-connector.done { background:#22c55e; }
+    .wizard-modal { background:#fff;border-radius:18px;padding:1.75rem;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,62,138,0.2);animation:modal-in 0.25s cubic-bezier(.34,1.2,.64,1); }
+    @keyframes modal-in { from{transform:scale(0.92) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1} }
+    .wizard-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem; }
+    .wizard-header-left { display:flex;align-items:center;gap:0.65rem; }
+    .wizard-logo-box { width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#023e8a,#0096c7);display:flex;align-items:center;justify-content:center;font-size:1rem; }
+    .wizard-title { font-size:1.05rem;font-weight:800;color:#0d2d4a; }
+    .wizard-close { width:28px;height:28px;border-radius:8px;border:none;background:#f1f5f9;color:#64748b;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s; }
+    .wizard-close:hover { background:#fee2e2;color:#dc2626; }
+    .wizard-step-panel { display:none; }
+    .wizard-step-panel.active { display:block;animation:fade-in 0.2s ease; }
+    @keyframes fade-in { from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)} }
+    .dyn-list { display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem; }
+    .dyn-item { display:flex;gap:0.5rem;align-items:center; }
+    .dyn-item input { flex:1;background:#f5fbff;border:1.5px solid #c8e6fa;border-radius:9px;color:#0d2d4a;font-family:'Inter',sans-serif;font-size:0.875rem;padding:0.6rem 0.9rem;outline:none;transition:border-color 0.2s; }
+    .dyn-item input:focus { border-color:#0096c7;box-shadow:0 0 0 3px rgba(0,150,199,0.12); }
+    .dyn-remove { width:30px;height:30px;border-radius:7px;border:1.5px solid #fca5a5;background:#fff0f0;color:#dc2626;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s; }
+    .dyn-remove:hover { background:#fecaca; }
+    .btn-add-dyn { width:100%;padding:0.58rem;border:1.5px dashed #c8e6fa;border-radius:9px;background:#f5fbff;color:#0096c7;font-size:0.82rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.4rem;font-family:'Inter',sans-serif;transition:all 0.15s; }
+    .btn-add-dyn:hover { border-color:#0096c7;background:#e0f4ff; }
+    .date-row { display:grid;grid-template-columns:1fr 1fr;gap:0.75rem; }
+    .form-input.error,.form-select.error,.form-textarea.error,.dyn-item input.error { border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,0.12)!important; }
+    .field-error { font-size:0.72rem;color:#ef4444;margin-top:0.25rem; }
+    .wizard-footer { display:flex;gap:0.75rem;justify-content:space-between;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid #e5e7eb;align-items:center; }
+    .wizard-footer-right { display:flex;gap:0.75rem; }
+
+    /* ── Sections & Tables ── */
+    .section-title { font-size: 0.95rem; font-weight: 800; color: var(--ocean); margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: center; }
+    .section-desc { font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; }
+    .card-section { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; }
+    
+    .dyn-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .dyn-table th { text-align: left; font-size: 0.7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .dyn-table td { padding: 0.6rem 0.5rem 0.6rem 0; border-bottom: 1px solid #f1f5f9; }
+    .dyn-table input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.4rem 0.6rem; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #0d2d4a; }
+    .dyn-table input:focus { border-color: var(--cyan); outline: none; }
+    
+    .remove-row-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #fca5a5; background: #fff0f0; color: #dc2626; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .remove-row-btn:hover { background: #fecaca; }
+    .add-row-btn { color: var(--ocean); font-size: 0.7rem; font-weight: 700; background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.5rem 0; }
+    .add-row-btn:hover { color: var(--cyan); }
+
+    /* ── Charts Section ── */
+    .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem; }
+    .chart-card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.25rem; box-shadow:var(--shadow); }
+    .chart-card-title { font-size:0.88rem; font-weight:800; color:var(--ocean); margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+    .chart-canvas-wrap { position:relative; height:200px; }
+
+    /* ── Users Modal ── */
+    .users-modal { background:#fff; border-radius:18px; padding:1.75rem; width:100%; max-width:720px; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,62,138,0.2); animation:modal-in 0.25s cubic-bezier(.34,1.2,.64,1); }
+    .users-modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
+    .users-modal-title { font-size:1.05rem; font-weight:800; color:#0d2d4a; display:flex; align-items:center; gap:0.6rem; }
+    .user-badge { display:inline-flex; align-items:center; gap:0.3rem; padding:0.2rem 0.55rem; border-radius:20px; font-size:0.7rem; font-weight:700; text-transform:uppercase; }
+    .user-badge-admin { background:#fef3c7; color:#92400e; }
+    .user-badge-member { background:#e0f2fe; color:#0369a1; }
+    .user-badge-viewer { background:#f1f5f9; color:#64748b; }
+    .user-badge-active { background:#dcfce7; color:#166534; }
+    .user-badge-inactive { background:#fee2e2; color:#991b1b; }
+    .users-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .users-table th { text-align:left; padding:0.6rem 0.75rem; font-size:0.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; border-bottom:2px solid var(--border); }
+    .users-table td { padding:0.7rem 0.75rem; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+    .users-table tr:hover td { background:#f8fafc; }
+    .user-avatar-sm { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#023e8a,#48cae4); display:inline-flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+    .btn-kelola-users { display:inline-flex; align-items:center; gap:0.45rem; background:linear-gradient(135deg,#023e8a,#0096c7); color:#fff; border:none; border-radius:10px; padding:0.55rem 1.1rem; font-size:0.82rem; font-weight:700; cursor:pointer; transition:opacity 0.15s; }
+    .btn-kelola-users:hover { opacity:0.88; }
+  </style>
+</head>
+
+<body>
+  <div class="app-layout">
+    <aside class="app-sidebar" id="sidebar"></aside>
+    <main class="app-main">
+      <div class="app-topbar">
+        <h1>🏠 Dashboard</h1>
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <button class="btn-kelola-users" id="btn-users" onclick="openUsersModal()">👥 Kelola Pengguna</button>
+          <button class="btn-primary" onclick="openWizard()">+ Proyek Baru</button>
+        </div>
+      </div>
+      <div class="app-content">
+
+        <!-- STATS -->
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-card-label">Total Proyek</div>
+            <div class="stat-card-value" id="s-projects">—</div>
+            <div class="stat-card-sub">Proyek aktif</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Ditugaskan ke Saya</div>
+            <div class="stat-card-value" id="s-assigned">—</div>
+            <div class="stat-card-sub">Issue terbuka</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Sedang Dikerjakan</div>
+            <div class="stat-card-value" id="s-progress">—</div>
+            <div class="stat-card-sub">In Progress</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Selesai Hari Ini</div>
+            <div class="stat-card-value" id="s-done">—</div>
+            <div class="stat-card-sub">Issue done</div>
+          </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-card-title">📊 Status Issue (Keseluruhan)</div>
+            <div class="chart-canvas-wrap"><canvas id="chart-status"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">🎯 Distribusi Prioritas Issue</div>
+            <div class="chart-canvas-wrap"><canvas id="chart-priority"></canvas></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:1.5rem;">
+          <div>
+            <!-- RECENT PROJECTS -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+              <h2 style="font-size:1rem;font-weight:800;color:var(--ocean);">Proyek Terbaru</h2>
+              <a href="projects.html"
+                style="font-size:0.8rem;color:var(--cyan);text-decoration:none;font-weight:600;">Lihat semua →</a>
+            </div>
+            <div id="project-grid"
+              style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
+            </div>
+
+            <!-- MY ISSUES -->
+            <h2 style="font-size:1rem;font-weight:800;color:var(--ocean);margin-bottom:0.85rem;">Issue Saya yang Terbuka
+            </h2>
+            <div
+              style="background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Issue</th>
+                    <th>Proyek</th>
+                    <th>Prioritas</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="my-issues"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ACTIVITY -->
+          <div>
+            <h2 style="font-size:1rem;font-weight:800;color:var(--ocean);margin-bottom:0.85rem;">Aktivitas Terkini</h2>
+            <div id="activity-list" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- USERS MODAL -->
+  <div id="users-overlay" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeUsersModal()">
+    <div class="users-modal" onclick="event.stopPropagation()">
+      <div class="users-modal-header">
+        <div class="users-modal-title">👥 Manajemen Pengguna <span id="users-count-badge" style="font-size:0.75rem;font-weight:600;color:var(--muted);"></span></div>
+        <button class="wizard-close" onclick="closeUsersModal()">✕</button>
+      </div>
+      <div id="users-search-wrap" style="margin-bottom:1rem;">
+        <input id="users-search" class="form-input" placeholder="🔍 Cari nama atau email..." oninput="filterUsersTable()" style="width:100%;" />
+      </div>
+      <div id="users-table-wrap">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Pengguna</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Issue</th>
+              <th>Bergabung</th>
+              <th>Terakhir Login</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+        <p id="users-empty" style="text-align:center;color:var(--muted);padding:2rem;display:none;">Tidak ada pengguna ditemukan.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE PROJECT WIZARD MODAL -->
+  <div id="wizard-overlay" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeWizard()">
+    <div class="wizard-modal" onclick="event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="wizard-header">
+        <div class="wizard-header-left">
+          <div class="wizard-logo-box">🗂️</div>
+          <div class="wizard-title">Create New Project</div>
+        </div>
+        <button class="wizard-close" onclick="closeWizard()" title="Close">✕</button>
+      </div>
+
+      <!-- Stepper -->
+      <div class="wizard-stepper">
+        <div class="wizard-step"><div class="step-circle active" id="sc-1">1</div><span class="step-label active" id="sl-1">Info</span></div>
+        <div class="step-connector" id="conn-1"></div>
+        <div class="wizard-step"><div class="step-circle" id="sc-2">2</div><span class="step-label" id="sl-2">Meaningful Objectives</span></div>
+        <div class="step-connector" id="conn-2"></div>
+        <div class="wizard-step"><div class="step-circle" id="sc-3">3</div><span class="step-label" id="sl-3">Planning</span></div>
+      </div>
+
+      <!-- Step 1: Info -->
+      <div class="wizard-step-panel active" id="panel-1">
+        <div class="form-group"><label class="form-label">Project Name *</label><input id="np-name" class="form-input" placeholder="e.g. AI Platform v3" /><div class="field-error" id="err-np-name"></div></div>
+        <div class="form-group"><label class="form-label">Project Key * <span style="color:var(--muted);font-weight:400;">(MAX 5 CHARS)</span></label><input id="np-key" class="form-input" placeholder="e.g. AIP" maxlength="5" style="text-transform:uppercase;" /><div class="field-error" id="err-np-key"></div></div>
+        <div class="form-group"><label class="form-label">Type</label><select id="np-type" class="form-select"><option value="scrum">Scrum</option><option value="kanban">Kanban</option><option value="safe">SAFe</option><option value="custom">Custom</option></select></div>
+        <div class="form-group"><label class="form-label">Description *</label><textarea id="np-desc" class="form-textarea" rows="3" placeholder="What is this project about?"></textarea><div class="field-error" id="err-np-desc"></div></div>
+      </div>
+
+
+
+      <!-- Step 2: Meaningful Objectives -->
+      <div class="wizard-step-panel" id="panel-2">
+        <div class="card-section">
+          <div class="section-title">Organizational Objectives *</div>
+          <div class="section-desc">Apa nilai bisnis utama yang ingin dicapai perusahaan melalui sistem cerdas ini?</div>
+          <div class="form-group"><textarea id="mo-org-obj" class="form-textarea" rows="3" placeholder="Contoh: Meningkatkan pendapatan tenant kantin..." required></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group"><label class="form-label">Bagaimana cara mencapainya?</label><textarea id="mo-org-how" class="form-textarea" rows="2"></textarea></div>
+            <div class="form-group"><label class="form-label">Bagaimana cara mengukurnya?</label><textarea id="mo-org-measure" class="form-textarea" rows="2"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card-section">
+          <div class="section-title">Leading Indicators * <button type="button" class="add-row-btn" onclick="addIndicatorRow()">+ Tambah Baris</button></div>
+          <div class="section-desc">Indikator metrik prediksi keberhasilan dibandingkan kompetitor.</div>
+          <table class="dyn-table" id="table-indicators">
+            <thead><tr><th>Fitur</th><th>Sistem Kita</th><th>Produk Kompetitor</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><input type="text" class="ind-fitur" placeholder="Kecepatan Memilih Menu"></td><td><input type="text" class="ind-kita" placeholder="< 10 detik"></td><td><input type="text" class="ind-komp" placeholder="5 Menit"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-section">
+          <div class="section-title">User Outcomes *</div>
+          <div class="section-desc">Manfaat nyata apa yang akan dirasakan oleh pengguna?</div>
+          <div class="form-group"><textarea id="mo-user-out" class="form-textarea" rows="2" placeholder="Siswa langsung mendapat pilihan makanan yang pas..." required></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group"><label class="form-label">Bagaimana cara mencapainya?</label><textarea id="mo-user-how" class="form-textarea" rows="2"></textarea></div>
+            <div class="form-group"><label class="form-label">Bagaimana cara mengukurnya?</label><textarea id="mo-user-measure" class="form-textarea" rows="2"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card-section">
+          <div class="section-title">Model Properties *</div>
+          <div class="section-desc">Spesifikasi teknis dan kriteria akurasi model AI/Machine Learning-nya.</div>
+          <div class="form-group"><textarea id="mo-model-prop" class="form-textarea" rows="2" placeholder="Model rekomendasi harus mampu memberikan saran real-time..." required></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group"><label class="form-label">Bagaimana cara mencapainya?</label><textarea id="mo-model-how" class="form-textarea" rows="2"></textarea></div>
+            <div class="form-group"><label class="form-label">Bagaimana cara mengukurnya?</label><textarea id="mo-model-measure" class="form-textarea" rows="2"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Planning -->
+      <div class="wizard-step-panel" id="panel-3">
+        <div class="date-row form-group">
+          <div><label class="form-label">Start Date *</label><input id="plan-start" type="date" class="form-input" /><div class="field-error" id="err-plan-start"></div></div>
+          <div><label class="form-label">End Date *</label><input id="plan-end" type="date" class="form-input" /><div class="field-error" id="err-plan-end"></div></div>
+        </div>
+        <div class="form-group"><label class="form-label">Deployment *</label><textarea id="plan-deploy" class="form-textarea" rows="2" placeholder="Describe the deployment strategy..."></textarea><div class="field-error" id="err-plan-deploy"></div></div>
+        <div class="form-group"><label class="form-label">Maintenance *</label><textarea id="plan-maint" class="form-textarea" rows="2" placeholder="Describe the maintenance plan..."></textarea><div class="field-error" id="err-plan-maint"></div></div>
+        <div class="form-group"><label class="form-label">Operations *</label><textarea id="plan-ops" class="form-textarea" rows="2" placeholder="Describe operational procedures..."></textarea><div class="field-error" id="err-plan-ops"></div></div>
+        <div class="form-group"><label class="form-label">Supervisor *</label><div class="dyn-list" id="list-stakeholders"></div><button class="btn-add-dyn" onclick="addDynItem('list-stakeholders','Supervisor')">+ Add Supervisor</button><div class="field-error" id="err-stakeholders"></div></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="wizard-footer">
+        <button class="btn-outline btn-sm" onclick="closeWizard()">Cancel</button>
+        <div class="wizard-footer-right">
+          <button class="btn-outline btn-sm" id="btn-back" onclick="wizardBack()" style="display:none;">← Back</button>
+          <button class="btn-primary btn-sm" id="btn-next" onclick="wizardNext()">Next →</button>
+          <button class="btn-primary btn-sm" id="btn-create" onclick="createProject()" style="display:none;">✅ Create Project</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="sidebar.js"></script>
+  <script>
+    // ── Wizard State ────────────────────────────────────────────────────────
+    let currentStep = 1;
+    const TOTAL_STEPS = 3;
+
+    function openWizard() {
+      currentStep = 1;
+      updateStepperUI();
+      document.getElementById('wizard-overlay').style.display = 'flex';
+      resetWizard();
+    }
+    function closeWizard() {
+      document.getElementById('wizard-overlay').style.display = 'none';
+      resetWizard();
+    }
+    function resetWizard() {
+      ['np-name','np-key','np-desc',
+       'mo-org-obj','mo-org-how','mo-org-measure',
+       'mo-user-out','mo-user-how','mo-user-measure',
+       'mo-model-prop','mo-model-how','mo-model-measure',
+       'plan-start','plan-end','plan-deploy','plan-maint','plan-ops'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      document.getElementById('np-type').value = 'scrum';
+      document.getElementById('table-indicators').querySelector('tbody').innerHTML = '<tr><td><input type="text" class="ind-fitur" placeholder="Kecepatan Memilih Menu"></td><td><input type="text" class="ind-kita" placeholder="< 10 detik"></td><td><input type="text" class="ind-komp" placeholder="5 Menit"></td><td><button type="button" class="remove-row-btn" onclick="this.closest(\'tr\').remove()">✕</button></td></tr>';
+      initDynList('list-stakeholders','Supervisor',1);
+      document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+      document.querySelectorAll('.form-input.error,.form-select.error,.form-textarea.error').forEach(e => e.classList.remove('error'));
+    }
+
+    function initDynList(listId, labelPrefix, count) {
+      const list = document.getElementById(listId);
+      list.innerHTML = '';
+      for (let i = 0; i < count; i++) addDynItem(listId, labelPrefix);
+    }
+    function addDynItem(listId, labelPrefix) {
+      const list = document.getElementById(listId);
+      const idx = list.children.length + 1;
+      const div = document.createElement('div');
+      div.className = 'dyn-item';
+      div.innerHTML = `<input type="text" placeholder="${labelPrefix} ${idx}" /><button class="dyn-remove" onclick="removeDynItem(this)" title="Remove">✕</button>`;
+      list.appendChild(div);
+    }
+    function removeDynItem(btn) {
+      const item = btn.closest('.dyn-item');
+      const list = item.parentElement;
+      if (list.children.length <= 1) { showToast('Minimal 1 item harus ada', 'error'); return; }
+      item.remove();
+    }
+    function getDynValues(listId) {
+      return Array.from(document.getElementById(listId).querySelectorAll('input'))
+        .map(i => i.value.trim()).filter(Boolean);
+    }
+
+    function updateStepperUI() {
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const circle = document.getElementById(`sc-${i}`);
+        const label  = document.getElementById(`sl-${i}`);
+        circle.className = 'step-circle'; label.className = 'step-label';
+        if (i < currentStep)       { circle.classList.add('done');   label.classList.add('done');   circle.textContent = '✓'; }
+        else if (i === currentStep) { circle.classList.add('active'); label.classList.add('active'); circle.textContent = i; }
+        else                        { circle.textContent = i; }
+        if (i < TOTAL_STEPS) document.getElementById(`conn-${i}`).className = 'step-connector' + (i < currentStep ? ' done' : '');
+      }
+      for (let i = 1; i <= TOTAL_STEPS; i++)
+        document.getElementById(`panel-${i}`).className = 'wizard-step-panel' + (i === currentStep ? ' active' : '');
+      document.getElementById('btn-back').style.display   = currentStep > 1 ? 'inline-flex' : 'none';
+      document.getElementById('btn-next').style.display   = currentStep < TOTAL_STEPS ? 'inline-flex' : 'none';
+      document.getElementById('btn-create').style.display = currentStep === TOTAL_STEPS ? 'inline-flex' : 'none';
+    }
+
+    function clearErrors(...ids) { ids.forEach(id => { const el=document.getElementById(id); if(el){el.textContent='';el.classList.remove('error');} }); }
+    function setError(fieldId, errId, msg) {
+      const f=document.getElementById(fieldId), e=document.getElementById(errId);
+      if(f) f.classList.add('error'); if(e) e.textContent=msg;
+    }
+    
+    function addIndicatorRow() {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><input type="text" class="ind-fitur"></td><td><input type="text" class="ind-kita"></td><td><input type="text" class="ind-komp"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+      document.getElementById('table-indicators').querySelector('tbody').appendChild(tr);
+    }
+    function extractTableData(tableId, cls1, cls2, cls3) {
+      return Array.from(document.getElementById(tableId).querySelectorAll('tbody tr')).map(tr => {
+        return { 
+          col1: tr.querySelector('.'+cls1)?.value || '', 
+          col2: tr.querySelector('.'+cls2)?.value || '', 
+          col3: tr.querySelector('.'+cls3)?.value || '' 
+        };
+      }).filter(d => d.col1 || d.col2);
+    }
+
+    function validateStep(step) {
+      let valid = true;
+      if (step === 1) {
+        clearErrors('np-name','np-key','np-desc','err-np-name','err-np-key','err-np-desc');
+        if (!document.getElementById('np-name').value.trim()) { setError('np-name','err-np-name','Project Name wajib diisi.'); valid=false; }
+        if (!document.getElementById('np-key').value.trim())  { setError('np-key','err-np-key','Project Key wajib diisi.'); valid=false; }
+        if (!document.getElementById('np-desc').value.trim()) { setError('np-desc','err-np-desc','Description wajib diisi.'); valid=false; }
+      }
+      if (step === 2) {
+        if (!document.getElementById('mo-org-obj').value.trim()) { document.getElementById('mo-org-obj').classList.add('error'); valid=false; }
+        if (!document.getElementById('mo-user-out').value.trim()) { document.getElementById('mo-user-out').classList.add('error'); valid=false; }
+        if (!document.getElementById('mo-model-prop').value.trim()) { document.getElementById('mo-model-prop').classList.add('error'); valid=false; }
+        if (!valid) setError('mo-org-obj','err-np-desc','Mohon lengkapi field wajib (*)'); // Just generic error
+      }
+      if (step === 3) {
+        clearErrors('plan-start','plan-end','plan-deploy','plan-maint','plan-ops','err-plan-start','err-plan-end','err-plan-deploy','err-plan-maint','err-plan-ops','err-stakeholders');
+        const start=document.getElementById('plan-start').value.trim(), end=document.getElementById('plan-end').value.trim();
+        if (!start) { setError('plan-start','err-plan-start','Start Date wajib diisi.'); valid=false; }
+        if (!end)   { setError('plan-end','err-plan-end','End Date wajib diisi.'); valid=false; }
+        if (!document.getElementById('plan-deploy').value.trim())   { setError('plan-deploy','err-plan-deploy','Deployment wajib diisi.'); valid=false; }
+        if (!document.getElementById('plan-maint').value.trim())    { setError('plan-maint','err-plan-maint','Maintenance wajib diisi.'); valid=false; }
+        if (!document.getElementById('plan-ops').value.trim())      { setError('plan-ops','err-plan-ops','Operations wajib diisi.'); valid=false; }
+        if (!getDynValues('list-stakeholders').length) { document.getElementById('err-stakeholders').textContent='Tambahkan minimal 1 Supervisor.'; valid=false; }
+        document.getElementById('list-stakeholders').querySelectorAll('input').forEach(inp => { if(!inp.value.trim()) inp.classList.add('error'); else inp.classList.remove('error'); });
+      }
+      return valid;
+    }
+
+    function wizardNext() { if (!validateStep(currentStep)) return; if (currentStep < TOTAL_STEPS) { currentStep++; updateStepperUI(); } }
+    function wizardBack() { if (currentStep > 1) { currentStep--; updateStepperUI(); } }
+
+    window.createProject = async function() {
+      if (!validateStep(3)) return;
+      const btnCreate = document.getElementById('btn-create');
+      btnCreate.disabled = true; btnCreate.textContent = 'Creating...';
+      const projectMeta = {
+        description: document.getElementById('np-desc').value.trim(),
+        objectives: {
+          organizational: { obj: document.getElementById('mo-org-obj').value, how: document.getElementById('mo-org-how').value, measure: document.getElementById('mo-org-measure').value },
+          leading_indicators: extractTableData('table-indicators', 'ind-fitur', 'ind-kita', 'ind-komp'),
+          user_outcomes: { obj: document.getElementById('mo-user-out').value, how: document.getElementById('mo-user-how').value, measure: document.getElementById('mo-user-measure').value },
+          model_properties: { obj: document.getElementById('mo-model-prop').value, how: document.getElementById('mo-model-how').value, measure: document.getElementById('mo-model-measure').value }
+        },
+        planning: { startDate: document.getElementById('plan-start').value, endDate: document.getElementById('plan-end').value, deployment: document.getElementById('plan-deploy').value.trim(), maintenance: document.getElementById('plan-maint').value.trim(), operations: document.getElementById('plan-ops').value.trim(), supervisors: getDynValues('list-stakeholders') }
+      };
+      try {
+        const p = await apiFetch('/projects', { method: 'POST', body: { name: document.getElementById('np-name').value.trim(), key: document.getElementById('np-key').value.trim(), type: document.getElementById('np-type').value, description: JSON.stringify(projectMeta) } });
+        closeWizard();
+        showToast(`Proyek "${p.name}" berhasil dibuat! 🎉`);
+        loadSidebarProjects();
+        location.reload();
+      } catch(e) { showToast(e.message,'error'); btnCreate.disabled=false; btnCreate.textContent='✅ Create Project'; }
+    };
+
+    window.openWizard = openWizard;
+    window.closeWizard = closeWizard;
+    window.addDynItem = addDynItem;
+    window.removeDynItem = removeDynItem;
+    window.wizardNext = wizardNext;
+    window.wizardBack = wizardBack;
+
+    // ── Dashboard Data ──────────────────────────────────────────────────────
+    let statusChartInstance = null;
+    let priorityChartInstance = null;
+    let allUsersData = [];
+
+    (async () => {
+      if (!requireAuth()) return;
+      document.getElementById('np-name').addEventListener('input', e => {
+        document.getElementById('np-key').value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').substring(0,5);
+      });
+      const PRIORITY_ICON = { critical:'🔴', high:'🟠', medium:'🟡', low:'🟢' };
+      const STATUS_LABEL  = { todo:'To Do', in_progress:'In Progress', in_review:'In Review', done:'Done' };
+      await renderSidebar('dashboard');
+
+      function renderStatusChart(chartData) {
+        const labels = ['To Do', 'In Progress', 'In Review', 'Done'];
+        const keys   = ['todo', 'in_progress', 'in_review', 'done'];
+        const colors = ['#94a3b8','#3b82f6','#f59e0b','#22c55e'];
+        const values = keys.map(k => chartData[k] || 0);
+        const ctx = document.getElementById('chart-status').getContext('2d');
+        if (statusChartInstance) statusChartInstance.destroy();
+        statusChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'right', labels: { font: { size: 11, family: 'Inter' }, boxWidth: 12, padding: 12 } },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} issue` } }
+            },
+            cutout: '62%'
+          }
+        });
+      }
+
+      function renderPriorityChart(chartData) {
+        const labels = ['Critical', 'High', 'Medium', 'Low'];
+        const keys   = ['critical', 'high', 'medium', 'low'];
+        const colors = ['#ef4444','#f97316','#eab308','#22c55e'];
+        const values = keys.map(k => chartData[k] || 0);
+        const ctx = document.getElementById('chart-priority').getContext('2d');
+        if (priorityChartInstance) priorityChartInstance.destroy();
+        priorityChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Jumlah Issue',
+              data: values,
+              backgroundColor: colors.map(c => c + 'cc'),
+              borderColor: colors,
+              borderWidth: 2,
+              borderRadius: 8,
+              borderSkipped: false
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: ctx => ` ${ctx.raw} issue` } }
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { precision: 0, font: { size: 11, family: 'Inter' } }, grid: { color: '#f1f5f9' } },
+              x: { ticks: { font: { size: 11, family: 'Inter' } }, grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      async function loadDashboard() {
+        try {
+          const data = await apiFetch('/dashboard');
+          document.getElementById('s-projects').textContent = data.totalProjects;
+          document.getElementById('s-assigned').textContent = data.assignedToMe;
+          document.getElementById('s-progress').textContent = data.inProgress;
+          document.getElementById('s-done').textContent = data.completedToday;
+
+          // Charts
+          if (data.statusChart)   renderStatusChart(data.statusChart);
+          if (data.priorityChart) renderPriorityChart(data.priorityChart);
+
+          // Total users badge on button
+          if (data.totalUsers !== undefined) {
+            document.getElementById('btn-users').innerHTML = `👥 Kelola Pengguna <span style="background:rgba(255,255,255,0.25);border-radius:20px;padding:0.1rem 0.45rem;font-size:0.72rem;">${data.totalUsers}</span>`;
+          }
+
+          const pg = document.getElementById('project-grid');
+          pg.innerHTML = data.recentProjects.length ? data.recentProjects.map(p => `
+            <a href="board.html?pid=${p.id}" style="text-decoration:none;">
+              <div class="card" style="padding:1.1rem;cursor:pointer;">
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.65rem;">
+                  <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#023e8a,#48cae4);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.78rem;color:#fff;flex-shrink:0;">${p.key.substring(0,2)}</div>
+                  <div><div style="font-weight:700;font-size:0.88rem;color:var(--ocean);">${p.name}</div><div style="font-size:0.68rem;color:var(--muted);">${p.key} · ${p.type}</div></div>
+                </div>
+                <div style="font-size:0.75rem;color:var(--muted);">${p.open_issues} issue terbuka</div>
+              </div>
+            </a>`).join('') : '<p style="color:var(--muted);font-size:0.875rem;grid-column:1/-1;">Belum ada proyek. Buat yang pertama!</p>';
+          const mi = document.getElementById('my-issues');
+          mi.innerHTML = data.myIssues.length ? data.myIssues.map(i => `
+            <tr onclick="location.href='issue.html?id=${i.id}'" style="cursor:pointer;">
+              <td><span style="font-size:0.68rem;color:var(--muted);margin-right:0.4rem;">${i.issue_key}</span>${i.title}</td>
+              <td><span style="font-size:0.75rem;color:var(--text2);">${i.project_name}</span></td>
+              <td><span class="badge badge-${i.priority}">${PRIORITY_ICON[i.priority]} ${i.priority}</span></td>
+              <td><span class="badge badge-${i.status}">${STATUS_LABEL[i.status]}</span></td>
+            </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem;">🎉 Tidak ada issue terbuka!</td></tr>';
+          document.getElementById('activity-list').innerHTML = data.recentActivity.length
+            ? data.recentActivity.map(a => `<div style="display:flex;gap:0.6rem;align-items:flex-start;padding:0.65rem;background:#fff;border:1px solid var(--border);border-radius:10px;"><div style="font-size:1.1rem;flex-shrink:0;">${a.user_avatar||'🙂'}</div><div><div style="font-size:0.78rem;font-weight:600;color:var(--ocean);">${a.user_name}</div><div style="font-size:0.73rem;color:var(--text2);">${a.detail}</div><div style="font-size:0.65rem;color:var(--muted);margin-top:0.15rem;">${timeAgo(a.created_at)}</div></div></div>`).join('')
+            : '<p style="color:var(--muted);font-size:0.8rem;text-align:center;padding:1rem;">Belum ada aktivitas.</p>';
+        } catch(e) { console.error('Dashboard error:', e); }
+      }
+      loadDashboard();
+    })();
+
+    // ── Users Modal ─────────────────────────────────────────────────────────
+    function openUsersModal() {
+      document.getElementById('users-overlay').style.display = 'flex';
+      document.getElementById('users-search').value = '';
+      loadAllUsers();
+    }
+    function closeUsersModal() {
+      document.getElementById('users-overlay').style.display = 'none';
+    }
+
+    async function loadAllUsers() {
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">Memuat data...</td></tr>';
+      try {
+        allUsersData = await apiFetch('/admin/users');
+        document.getElementById('users-count-badge').textContent = `(${allUsersData.length} pengguna)`;
+        renderUsersTable(allUsersData);
+      } catch(e) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ef4444;">Gagal memuat: ${e.message}</td></tr>`;
+      }
+    }
+
+    function renderUsersTable(users) {
+      const tbody = document.getElementById('users-tbody');
+      const empty = document.getElementById('users-empty');
+      if (!users.length) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td style="display:flex;align-items:center;gap:0.55rem;">
+            <div class="user-avatar-sm">${u.avatar || '🙂'}</div>
+            <span style="font-weight:600;color:var(--ocean);">${u.name}</span>
+          </td>
+          <td style="color:var(--text2);">${u.email}</td>
+          <td><span class="user-badge user-badge-${u.role}">${u.role}</span></td>
+          <td><span class="user-badge ${u.is_active ? 'user-badge-active' : 'user-badge-inactive'}">${u.is_active ? '✓ Aktif' : '✗ Non-aktif'}</span></td>
+          <td style="text-align:center;font-weight:700;color:var(--ocean);">${u.issue_count}</td>
+          <td style="font-size:0.75rem;color:var(--muted);">${u.created_at ? new Date(u.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '—'}</td>
+          <td style="font-size:0.75rem;color:var(--muted);">${u.last_login ? timeAgo(u.last_login) : '<span style="color:#ef4444;">Belum pernah</span>'}</td>
+        </tr>`).join('');
+    }
+
+    function filterUsersTable() {
+      const q = document.getElementById('users-search').value.toLowerCase();
+      const filtered = allUsersData.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+      renderUsersTable(filtered);
+    }
+
+    window.openUsersModal = openUsersModal;
+    window.closeUsersModal = closeUsersModal;
+    window.filterUsersTable = filterUsersTable;
+  </script>
+
+</body>
+
+</html>

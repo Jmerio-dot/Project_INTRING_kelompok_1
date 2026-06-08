@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Daftar Pengguna{% endblock %}
+{% block nav_pengguna %}active{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex align-items-center justify-content-between">
+  <h1><i class="bi bi-people-fill"></i> Daftar Pengguna</h1>
+  <a href="{% url 'set_pengguna' %}" class="btn btn-primary">
+    <i class="bi bi-person-plus"></i> Tambah Pengguna
+  </a>
+</div>
+
+<div class="p-4">
+  <!-- Search -->
+  <form method="get" class="mb-4">
+    <div class="input-group" style="max-width:500px;">
+      <input type="text" name="q" class="form-control" placeholder="Cari nama, email, username..." value="{{ query }}">
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+        {% if query %}
+        <a href="{% url 'pengguna_list' %}" class="btn btn-outline-secondary">Reset</a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between">
+      <span><i class="bi bi-table"></i> Data Pengguna ({{ total }} total)</span>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>NAMA LENGKAP</th>
+            <th>EMAIL</th>
+            <th>USERNAME</th>
+            <th>PERAN</th>
+            <th>JUMLAH KONTEN</th>
+            <th>STATUS</th>
+            <th>AKSI</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in page_obj %}
+          <tr>
+            <td><small class="text-muted">#{{ p.id }}</small></td>
+            <td>
+              <a href="{% url 'pengguna_detail' p.pk %}" class="font-weight-bold text-dark text-decoration-none">
+                {{ p.nama_lengkap }}
+              </a>
+            </td>
+            <td><small>{{ p.email }}</small></td>
+            <td><code>{{ p.username }}</code></td>
+            <td>
+              <span class="badge badge-{% if p.role == 'admin' %}danger{% elif p.role == 'editor' %}warning{% else %}secondary{% endif %}">
+                {{ p.get_role_display }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-info">{{ p.jumlah_konten }} konten</span>
+            </td>
+            <td>
+              {% if p.aktif %}
+                <span class="badge badge-success">Aktif</span>
+              {% else %}
+                <span class="badge badge-secondary">Nonaktif</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'pengguna_detail' p.pk %}" class="btn btn-outline-primary" title="Detail">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'edit_pengguna' p.pk %}" class="btn btn-outline-warning" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'hapus_pengguna' p.pk %}" class="btn btn-outline-danger" title="Hapus">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-5">
+              <i class="bi bi-inbox" style="font-size:2rem;"></i><br>
+              Belum ada pengguna.
+              <a href="{% url 'set_pengguna' %}">Tambah sekarang</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer">
+      <nav>
+        <ul class="pagination pagination-sm mb-0 justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}">‹</a></li>
+          {% endif %}
+          {% for num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&q={{ query }}">{{ num }}</a>
+          </li>
+          {% endfor %}
+          {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}">›</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
