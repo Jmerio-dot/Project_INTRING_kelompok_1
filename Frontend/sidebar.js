@@ -24,7 +24,7 @@ async function renderSidebar(activePage, activePid) {
     <div class="sb-brand">
       <a href="/dashboard.html" class="sb-logo" title="IntRing PM">
         <div class="sb-logo-icon" style="background:transparent; padding:0; width:36px; height:36px;">
-          <img src="logo.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><path d=\'M20,80 L80,20 M20,20 L80,80 M10,50 L90,50 M50,10 L50,90\' stroke=\'%230077b6\' stroke-width=\'5\'/></svg>'"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:100%;height:100%;"><path d="M20,80 L80,20 M20,20 L80,80 M10,50 L90,50 M50,10 L50,90" stroke="#0077b6" stroke-width="5"/></svg>
         </div>
         <span class="sb-logo-text">IntRing PM</span>
       </a>
