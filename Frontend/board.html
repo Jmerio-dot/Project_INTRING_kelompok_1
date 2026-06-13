@@ -132,12 +132,12 @@
     // Assignee filter — use project members for filtering (who's actually assigned)
     const af = document.getElementById('assignee-filter');
     af.innerHTML = '<option value="">Semua Anggota</option>' +
-      members.map(m => `<option value="${m.id}">${m.avatar && m.avatar.length < 5 ? '👤' : (m.avatar||'👤')} ${m.name}</option>`).join('');
+      members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
 
     // CI Assignee — use ALL users so new projects can assign anyone
     const ca = document.getElementById('ci-assignee');
     ca.innerHTML = '<option value="">Unassigned</option>' +
-      allUsers.map(u => `<option value="${u.id}">${u.avatar && u.avatar.length < 5 ? '👤' : (u.avatar||'👤')} ${u.name}</option>`).join('');
+      allUsers.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
 
     await loadBoard();
   }

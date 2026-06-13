@@ -79,7 +79,7 @@
     renderSidebar('backlog', pid);
 
     // Populate ci-assignee, ci-sprint
-    document.getElementById('ci-assignee').innerHTML = '<option value="">Unassigned</option>' + members.map(m => `<option value="${m.id}">${m.avatar && m.avatar.length < 5 ? '👤' : (m.avatar||'👤')} ${m.name}</option>`).join('');
+    document.getElementById('ci-assignee').innerHTML = '<option value="">Unassigned</option>' + members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
     document.getElementById('ci-sprint').innerHTML = '<option value="">Backlog (no sprint)</option>' + sprints.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
 
     await renderBacklog();
