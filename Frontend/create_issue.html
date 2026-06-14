@@ -445,11 +445,23 @@
   function prevTab() { if (currentTab > 1) switchTab(currentTab - 1); }
 
   function validateCurrentTab() {
-    // Basic validation implementation. For full production, add strict checks.
-    if (currentTab === 1 && !document.getElementById('basic-title').value.trim()) {
-      showToast('Judul Issue wajib diisi.', 'error'); return false;
+    let valid = true;
+    const tabDiv = document.getElementById('tab-' + currentTab);
+    const inputs = tabDiv.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), textarea, select');
+    
+    inputs.forEach(input => {
+      if (!input.value.trim()) {
+        input.classList.add('error');
+        valid = false;
+      } else {
+        input.classList.remove('error');
+      }
+    });
+    
+    if (!valid) {
+      showToast('Mohon lengkapi semua field yang berwarna merah', 'error');
     }
-    return true;
+    return valid;
   }
 
 

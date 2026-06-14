@@ -402,7 +402,7 @@
 
     function validateStep(step) {
       let valid = true;
-      const stepDiv = document.getElementById('wizard-step-' + step);
+      const stepDiv = document.getElementById('panel-' + step);
       const inputs = stepDiv.querySelectorAll('input, textarea, select');
       
       inputs.forEach(input => {
