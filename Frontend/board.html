@@ -49,10 +49,8 @@
       <div class="form-group">
         <label class="form-label">Type</label>
         <select id="ci-type" class="form-select">
-          <option value="task">✅ Task</option>
-          <option value="story">📗 Story</option>
-          <option value="bug">🐛 Bug</option>
-          <option value="epic">⚡ Epic</option>
+          <option value="task">Task</option>
+          <option value="bug">Bug</option>
         </select>
       </div>
       <div class="form-group">
@@ -460,6 +458,21 @@
   };
 
   window.saveProjectSettings = async function() {
+    let valid = true;
+    const inputs = document.getElementById('project-settings-modal').querySelectorAll('input, textarea, select');
+    inputs.forEach(inp => {
+      if (!inp.value.trim()) {
+        inp.classList.add('error');
+        valid = false;
+      } else {
+        inp.classList.remove('error');
+      }
+    });
+    if (!valid) {
+      showToast('Mohon lengkapi semua field yang berwarna merah', 'error');
+      return;
+    }
+
     try {
       const btn = document.querySelector('#project-settings-modal .btn-primary:nth-child(2)');
       if(btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }

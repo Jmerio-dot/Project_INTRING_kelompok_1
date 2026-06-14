@@ -38,7 +38,7 @@ async function renderSidebar(activePage, activePid) {
     <!-- Search Bar -->
     <div class="sb-search-wrap">
       <div class="sb-search">
-        <span class="sb-search-icon">🔍</span>
+        <span class="sb-search-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M16.65 16.65A7.5 7.5 0 111.5 10.5a7.5 7.5 0 0115.15 6.15z"/></svg></span>
         <input class="sb-search-input" placeholder="Cari..." oninput="sidebarSearch(this.value)" />
       </div>
     </div>
@@ -47,11 +47,11 @@ async function renderSidebar(activePage, activePid) {
     <div class="sb-section">
       <div class="sb-section-label">Menu Utama</div>
       <a href="/dashboard.html" class="sb-link ${activePage === 'dashboard' ? 'active' : ''}" title="Dashboard">
-        <span class="sb-link-icon">🏠</span>
+        <span class="sb-link-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></span>
         <span class="sb-link-text">Dashboard</span>
       </a>
       <a href="/projects.html" class="sb-link ${activePage === 'projects' ? 'active' : ''}" title="Semua Proyek">
-        <span class="sb-link-icon">📁</span>
+        <span class="sb-link-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg></span>
         <span class="sb-link-text">Semua Proyek</span>
       </a>
     </div>
@@ -70,7 +70,7 @@ async function renderSidebar(activePage, activePid) {
     <!-- User Footer -->
     <div class="sb-footer">
       <a href="/profile.html" class="sb-user" title="Profil Saya" style="text-decoration:none;">
-        <div class="sb-avatar">${user?.profile_photo_url ? `<img src="${user.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user?.avatar || '👨‍💻')}</div>
+        <div class="sb-avatar">${user?.profile_photo_url ? `<img src="${user.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" />` : (user?.avatar || '<svg width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>')}</div>
         <div class="sb-user-info">
           <div class="sb-user-name">${user?.name?.split(' ')[0] || 'User'}</div>
           <div class="sb-user-role">Lihat Profil</div>

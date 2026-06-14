@@ -247,6 +247,10 @@ class SprintListCreateView(APIView):
             start_date=request.data.get('start_date') or None,
             end_date=request.data.get('end_date') or None,
         )
+        sprint = Sprint.objects.annotate(
+            issue_count=Count('issues', distinct=True),
+            done_count=Count('issues', filter=Q(issues__status='done'), distinct=True),
+        ).get(id=sprint.id)
         return Response(SprintSerializer(sprint).data, status=status.HTTP_201_CREATED)
 
 
