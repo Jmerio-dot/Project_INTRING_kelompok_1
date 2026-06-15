@@ -718,18 +718,11 @@
     const type = document.querySelector('input[name="dl-type"]:checked')?.value;
     
     if (type === 'print') {
-      // Temporarily revert any zoom transforms so print styles calculate layout properly
       const oldZoom = zoomPct;
       zoomPct = 100;
       applyZoom();
-      
       window.print();
-      
-      // Restore zoom after print dialog is closed
-      setTimeout(() => {
-        zoomPct = oldZoom;
-        applyZoom();
-      }, 500);
+      setTimeout(() => { zoomPct = oldZoom; applyZoom(); }, 500);
       return;
     }
 
@@ -737,54 +730,52 @@
     btn.disabled = true;
     btn.textContent = 'Memproses...';
 
-    // Clone element to body to completely isolate it from the app's flexbox/sidebar layout
-    const originalEl = document.getElementById('paper-page');
-    const pdfContainer = document.createElement('div');
-    pdfContainer.id = 'pdf-export-container';
-    pdfContainer.appendChild(originalEl.cloneNode(true));
-    document.body.appendChild(pdfContainer);
-
+    // Apply temporary styles for PDF generation
     const printStyle = document.createElement('style');
     printStyle.innerHTML = `
-      #pdf-export-container {
-        position: absolute; top: 0; left: 0; width: 800px;
-        background: white; z-index: -9999;
-      }
-      #pdf-export-container #paper-page {
-        width: 800px !important; max-width: 800px !important; padding: 25px !important;
+      body, html { background: #ffffff !important; }
+      .app-sidebar, .app-topbar, .ctrl-panel, .preview-toolbar { display: none !important; }
+      .app-layout { display: block !important; padding: 0 !important; margin: 0 !important; }
+      .app-main { margin: 0 !important; padding: 0 !important; width: 800px !important; overflow: visible !important; }
+      .app-content { padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+      .transcript-layout { display: block !important; gap: 0 !important; }
+      .preview-wrap { border: none !important; box-shadow: none !important; border-radius: 0 !important; background: transparent !important; overflow: visible !important; }
+      .paper-container { max-height: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; background: transparent !important; width: 800px !important; }
+      #paper-page { 
+        width: 800px !important; max-width: 800px !important; padding: 15px !important;
         margin: 0 !important; transform: none !important; box-shadow: none !important;
-        box-sizing: border-box !important; color: #000 !important; background: #fff !important;
+        box-sizing: border-box !important; color: #000000 !important; background: #ffffff !important;
         word-break: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important;
       }
-      #pdf-export-container .tr-row { display: block !important; margin-bottom: 12px !important; page-break-inside: avoid !important; }
-      #pdf-export-container .tr-label { display: block !important; font-weight: bold !important; color: #444 !important; margin-bottom: 4px !important; font-style: normal !important; page-break-after: avoid !important; }
-      #pdf-export-container .tr-value { display: block !important; color: #000 !important; line-height: 1.6 !important; white-space: pre-wrap !important; word-break: normal !important; page-break-inside: avoid !important; }
-      #pdf-export-container .tr-value br { display: block !important; content: "" !important; margin-bottom: 4px !important; }
-      #pdf-export-container .tr-value b, #pdf-export-container .tr-value strong { color: #222 !important; }
-      #pdf-export-container .tr-main-title { color: #000 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
-      #pdf-export-container .tr-section-title { color: #111 !important; border-bottom: 1px solid #ccc !important; padding-bottom: 5px !important; margin-bottom: 10px !important; margin-top: 25px !important; page-break-after: avoid !important; }
-      #pdf-export-container .tr-issue { border: 1px solid #ccc !important; padding: 15px !important; margin-bottom: 15px !important; page-break-inside: avoid !important; box-sizing: border-box !important; }
-      #pdf-export-container .tr-issue-title { color: #0056b3 !important; font-size: 13pt !important; margin-bottom: 8px !important; page-break-after: avoid !important; }
-      #pdf-export-container .tr-issue-desc { color: #222 !important; white-space: pre-wrap !important; }
-      #pdf-export-container .tr-file-link { color: #0056b3 !important; text-decoration: none !important; }
-      #pdf-export-container .tr-no-issues { color: #555 !important; }
-      #pdf-export-container .tr-watermark { display: none !important; }
-      #pdf-export-container .tr-table { width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; page-break-inside: auto !important; }
-      #pdf-export-container .tr-table tr { page-break-inside: avoid !important; page-break-after: auto !important; }
-      #pdf-export-container .tr-table th { border: 1px solid #ccc !important; background: #2c3e50 !important; color: #fff !important; padding: 6px !important; text-align: left !important; word-wrap: break-word !important; }
-      #pdf-export-container .tr-table td { border: 1px solid #ccc !important; color: #000 !important; padding: 6px !important; word-wrap: break-word !important; }
+      .tr-row { display: block !important; margin-bottom: 12px !important; page-break-inside: avoid !important; }
+      .tr-label { display: block !important; font-weight: bold !important; color: #333333 !important; margin-bottom: 4px !important; page-break-after: avoid !important; }
+      .tr-value { display: block !important; color: #000000 !important; line-height: 1.6 !important; white-space: pre-wrap !important; word-break: normal !important; page-break-inside: avoid !important; }
+      .tr-value br { display: block !important; content: "" !important; margin-bottom: 4px !important; }
+      .tr-value b, .tr-value strong { color: #111111 !important; font-weight: 700 !important; }
+      .tr-main-title { color: #000000 !important; border-bottom: 2px solid #000000 !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
+      .tr-section-title { color: #111111 !important; border-bottom: 1px solid #cccccc !important; padding-bottom: 5px !important; margin-bottom: 10px !important; margin-top: 25px !important; page-break-after: avoid !important; }
+      .tr-issue { border: 1px solid #cccccc !important; padding: 15px !important; margin-bottom: 15px !important; page-break-inside: avoid !important; box-sizing: border-box !important; }
+      .tr-issue-title { color: #0056b3 !important; font-size: 13pt !important; margin-bottom: 8px !important; page-break-after: avoid !important; }
+      .tr-issue-desc { color: #222222 !important; white-space: pre-wrap !important; }
+      .tr-file-link { color: #0056b3 !important; text-decoration: none !important; }
+      .tr-no-issues { color: #555555 !important; }
+      .tr-watermark { display: none !important; }
+      .tr-table { width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; page-break-inside: auto !important; margin-top: 10px !important; }
+      .tr-table tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+      .tr-table th { border: 1px solid #cccccc !important; background: #2c3e50 !important; color: #ffffff !important; padding: 8px !important; text-align: left !important; word-wrap: break-word !important; }
+      .tr-table td { border: 1px solid #cccccc !important; color: #000000 !important; padding: 8px !important; word-wrap: break-word !important; }
     `;
     document.head.appendChild(printStyle);
 
     try {
       const safeName = project.name.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const element = pdfContainer.querySelector('#paper-page');
+      const element = document.getElementById('paper-page');
       
       const opt = {
-        margin:       15,
+        margin:       10,
         filename:     `transcript_${safeName}.pdf`,
         image:        { type: 'jpeg', quality: 1.0 },
-        html2canvas:  { scale: 2, useCORS: true, letterRendering: true, scrollX: 0, scrollY: 0, windowWidth: 800 },
+        html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak:    { mode: ['css', 'legacy'] }
       };
@@ -830,7 +821,6 @@
       showToast('Gagal memproses: ' + e.message, 'error');
     } finally {
       document.head.removeChild(printStyle);
-      if (pdfContainer.parentNode) document.body.removeChild(pdfContainer);
       btn.disabled = false;
       btn.innerHTML = '🚀 Proses';
     }
