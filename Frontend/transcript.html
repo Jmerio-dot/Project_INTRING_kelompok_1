@@ -730,78 +730,62 @@
     btn.disabled = true;
     btn.textContent = 'Memproses...';
 
-    // 1. Create a completely isolated clone of the transcript to avoid any UI layout clipping
+    // 1. Create a fixed fullscreen wrapper to prevent scroll-offset cutoff
     const originalEl = document.getElementById('paper-page');
     const wrapper = document.createElement('div');
-    wrapper.style.position = 'absolute';
-    wrapper.style.top = '0';
-    wrapper.style.left = '0';
-    wrapper.style.width = '800px';
-    wrapper.style.background = '#ffffff';
-    wrapper.style.zIndex = '-9999';
-    wrapper.style.pointerEvents = 'none';
+    wrapper.id = 'pdf-export-wrapper';
+    wrapper.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; z-index: 99999; overflow: hidden; display: flex; justify-content: flex-start; align-items: flex-start;';
     
     const clone = originalEl.cloneNode(true);
     clone.id = 'pdf-clone';
+    // Force inline styles on clone to obliterate dark theme
+    clone.style.cssText = 'width: 800px !important; max-width: 800px !important; background: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 20px 40px !important; box-sizing: border-box !important; position: absolute !important; left: 0 !important; top: 0 !important; transform: none !important;';
+    
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
 
     // 2. Apply strict PDF-only styling to the clone
     const printStyle = document.createElement('style');
     printStyle.innerHTML = `
-      #pdf-clone {
-        width: 800px !important;
-        max-width: 800px !important;
-        margin: 0 !important;
-        padding: 20px 30px !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        box-sizing: border-box !important;
-        font-family: 'Times New Roman', Times, serif !important;
-        font-size: 12pt !important;
-        line-height: 1.7 !important;
-        transform: none !important;
-        word-break: normal !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-      }
-      #pdf-clone * { font-family: 'Times New Roman', Times, serif !important; }
-      #pdf-clone .tr-row { display: block !important; margin-bottom: 12px !important; page-break-inside: avoid !important; width: 100% !important; }
-      #pdf-clone .tr-label { display: block !important; font-weight: bold !important; color: #333333 !important; margin-bottom: 4px !important; page-break-after: avoid !important; }
-      #pdf-clone .tr-value { display: block !important; color: #000000 !important; line-height: 1.6 !important; white-space: pre-wrap !important; word-break: normal !important; page-break-inside: avoid !important; }
+      #pdf-clone * { font-family: 'Times New Roman', Times, serif !important; color: #000000 !important; }
+      #pdf-clone .tr-row { display: block !important; margin-bottom: 12px !important; page-break-inside: avoid !important; width: 100% !important; background: transparent !important; }
+      #pdf-clone .tr-label { display: block !important; font-weight: bold !important; margin-bottom: 4px !important; page-break-after: avoid !important; background: transparent !important; }
+      #pdf-clone .tr-value { display: block !important; line-height: 1.6 !important; white-space: pre-wrap !important; word-break: normal !important; page-break-inside: avoid !important; background: transparent !important; }
       #pdf-clone .tr-value br { display: block !important; content: "" !important; margin-bottom: 4px !important; }
-      #pdf-clone .tr-value b, #pdf-clone .tr-value strong { color: #111111 !important; font-weight: 700 !important; }
-      #pdf-clone .tr-main-title { color: #000000 !important; border-bottom: 2px solid #000000 !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
-      #pdf-clone .tr-section-title { color: #111111 !important; border-bottom: 1px solid #cccccc !important; padding-bottom: 5px !important; margin-bottom: 10px !important; margin-top: 25px !important; page-break-after: avoid !important; }
-      #pdf-clone .tr-issue { border: 1px solid #cccccc !important; padding: 15px !important; margin-bottom: 15px !important; page-break-inside: avoid !important; box-sizing: border-box !important; width: 100% !important; }
-      #pdf-clone .tr-issue-title { color: #0056b3 !important; font-size: 13pt !important; margin-bottom: 8px !important; page-break-after: avoid !important; }
-      #pdf-clone .tr-issue-desc { color: #222222 !important; white-space: pre-wrap !important; }
+      #pdf-clone .tr-value b, #pdf-clone .tr-value strong { font-weight: 700 !important; }
+      #pdf-clone .tr-main-title { border-bottom: 2px solid #000 !important; padding-bottom: 10px !important; margin-bottom: 20px !important; background: transparent !important; }
+      #pdf-clone .tr-section-title { border-bottom: 1px solid #ccc !important; padding-bottom: 5px !important; margin-bottom: 10px !important; margin-top: 25px !important; page-break-after: avoid !important; background: transparent !important; }
+      #pdf-clone .tr-issue { border: 1px solid #ccc !important; padding: 15px !important; margin-bottom: 15px !important; page-break-inside: avoid !important; box-sizing: border-box !important; width: 100% !important; background: transparent !important; }
+      #pdf-clone .tr-issue-title { color: #0056b3 !important; font-size: 13pt !important; margin-bottom: 8px !important; page-break-after: avoid !important; background: transparent !important; }
+      #pdf-clone .tr-issue-desc { white-space: pre-wrap !important; background: transparent !important; }
       #pdf-clone .tr-file-link { color: #0056b3 !important; text-decoration: none !important; }
-      #pdf-clone .tr-no-issues { color: #555555 !important; }
+      #pdf-clone .tr-no-issues { color: #555 !important; }
       #pdf-clone .tr-watermark { display: none !important; }
-      #pdf-clone .tr-table { width: 100% !important; max-width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; page-break-inside: auto !important; margin-top: 10px !important; }
-      #pdf-clone .tr-table tr { page-break-inside: avoid !important; page-break-after: auto !important; }
-      #pdf-clone .tr-table th { border: 1px solid #cccccc !important; background: #2c3e50 !important; color: #ffffff !important; padding: 8px !important; text-align: left !important; word-wrap: break-word !important; }
-      #pdf-clone .tr-table td { border: 1px solid #cccccc !important; color: #000000 !important; padding: 8px !important; word-wrap: break-word !important; }
+      #pdf-clone .tr-table { width: 100% !important; max-width: 100% !important; table-layout: fixed !important; border-collapse: collapse !important; page-break-inside: auto !important; margin-top: 10px !important; background: transparent !important; }
+      #pdf-clone .tr-table tr { page-break-inside: avoid !important; page-break-after: auto !important; background: transparent !important; }
+      #pdf-clone .tr-table th { border: 1px solid #ccc !important; background: #2c3e50 !important; color: #fff !important; padding: 8px !important; text-align: left !important; word-wrap: break-word !important; }
+      #pdf-clone .tr-table td { border: 1px solid #ccc !important; padding: 8px !important; word-wrap: break-word !important; background: transparent !important; }
     `;
     document.head.appendChild(printStyle);
 
     try {
+      // Force DOM reflow and wait to ensure styles are 100% applied before html2canvas runs
+      await new Promise(r => setTimeout(r, 150));
+
       const safeName = project.name.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const element = document.getElementById('paper-page');
       
       const opt = {
         margin:       10,
         filename:     `transcript_${safeName}.pdf`,
         image:        { type: 'jpeg', quality: 1.0 },
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+        html2canvas:  { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak:    { mode: ['css', 'legacy'] }
       };
 
       if (type === 'pdf') {
         if (typeof html2pdf === 'undefined') throw new Error('Library PDF belum dimuat. Coba refresh halaman.');
-        await html2pdf().set(opt).from(element).save();
+        await html2pdf().set(opt).from(clone).save();
         showToast('PDF berhasil didownload!');
       } else {
         if (typeof JSZip === 'undefined' || typeof html2pdf === 'undefined') {
@@ -810,7 +794,7 @@
         const zip = new JSZip();
         
         // Generate PDF as Blob
-        const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+        const pdfBlob = await html2pdf().set(opt).from(clone).outputPdf('blob');
         zip.file(`transcript_${safeName}.pdf`, pdfBlob);
 
         const allAtts = [];
