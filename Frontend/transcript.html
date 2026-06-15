@@ -239,7 +239,41 @@
     }
     .stat-chip.green { background: #dcfce7; color: #15803d; }
     .stat-chip.amber { background: #fef3c7; color: #b45309; }
-  </style>
+  
+      @media print {
+        .app-sidebar, .app-topbar, .ctrl-panel, .preview-toolbar, #loading-state {
+          display: none !important;
+        }
+        body, html, .app-layout, .app-main, .app-content, .transcript-layout, .preview-wrap, .paper-container {
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          margin: 0 !important;
+          
+          overflow: visible !important;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          max-height: none !important;
+          position: static !important;
+        }
+        #paper-page {
+          zoom: 1 !important;
+          transform: none !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          
+          box-shadow: none !important;
+          background: #fff !important;
+          color: #000 !important;
+          min-height: auto !important;
+        }
+        .tr-row {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
 </head>
 <body>
 <div class="app-layout">
