@@ -485,13 +485,13 @@
 
   function addIndicatorRowVal(c1='', c2='', c3='') {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td><input type="text" class="ind-fitur" value="${c1.replace(/"/g, '&quot;')}"></td><td><input type="text" class="ind-kita" value="${c2.replace(/"/g, '&quot;')}"></td><td><input type="text" class="ind-komp" value="${c3.replace(/"/g, '&quot;')}"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+    tr.innerHTML = `<td><input type="text" class="ind-fitur" value="${String(c1||'').replace(/"/g, '&quot;')}"></td><td><input type="text" class="ind-kita" value="${String(c2||'').replace(/"/g, '&quot;')}"></td><td><input type="text" class="ind-komp" value="${String(c3||'').replace(/"/g, '&quot;')}"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
     document.getElementById('table-indicators').querySelector('tbody').appendChild(tr);
   }
 
   function addFuncRowVal(tableId, c1='', c2='') {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td><input type="text" class="col-1 fn-name err-name data-name bp-name tech-proc" value="${c1.replace(/"/g, '&quot;')}"></td><td><input type="text" class="col-2 fn-desc err-strat data-plan bp-desc tech-stack" value="${c2.replace(/"/g, '&quot;')}"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+    tr.innerHTML = `<td><input type="text" class="col-1 fn-name err-name data-name bp-name tech-proc" value="${String(c1||'').replace(/"/g, '&quot;')}"></td><td><input type="text" class="col-2 fn-desc err-strat data-plan bp-desc tech-stack" value="${String(c2||'').replace(/"/g, '&quot;')}"></td><td><button type="button" class="remove-row-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
     document.getElementById(tableId).querySelector('tbody').appendChild(tr);
   }
 
