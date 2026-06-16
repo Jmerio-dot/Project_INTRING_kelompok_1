@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laporan - IntRing PM</title>
+  <link rel="stylesheet" href="app-theme.css" />
+  <style>
+    .laporan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .section-title { font-size: 1.15rem; font-weight: 800; color: var(--ocean); margin-top: 2rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); }
+    .proj-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #023e8a, #0096c7, #48cae4); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.88rem; color: #fff; flex-shrink: 0; letter-spacing: 0.03em; box-shadow: 0 3px 10px rgba(0,100,180,0.25); }
+    .proj-avatar.done { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 3px 10px rgba(16,185,129,0.25); }
+    .proj-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+    .status-badge { padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; }
+    .status-badge.active { background: #e0f2fe; color: #0284c7; }
+    .status-badge.done { background: #dcfce7; color: #166534; }
+    .proj-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="app-sidebar" id="sidebar"></aside>
+    <main class="app-main">
+      <div class="app-topbar">
+        <h1 id="page-title" style="margin:0;font-size:1.15rem;color:var(--ocean);">Laporan Proyek</h1>
+      </div>
+      <div class="app-content">
+        <div class="laporan-header">
+          <div>
+            <h2 style="font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:0.3rem;">Ringkasan Status Proyek</h2>
+            <p style="color:var(--muted); font-size:0.88rem;">Laporan semua proyek berdasarkan status penyelesaiannya.</p>
+          </div>
+          <div style="display:flex; gap:1rem;">
+            <div class="card" style="padding:0.75rem 1.5rem; text-align:center;">
+              <div style="font-size:1.5rem; font-weight:900; color:#0284c7;" id="count-active">0</div>
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.05em;">Dalam Pengerjaan</div>
+            </div>
+            <div class="card" style="padding:0.75rem 1.5rem; text-align:center;">
+              <div style="font-size:1.5rem; font-weight:900; color:#10b981;" id="count-done">0</div>
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.05em;">Selesai</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Dalam Pengerjaan -->
+        <h3 class="section-title">
+          <svg width="22" height="22" fill="none" stroke="#0284c7" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Dalam Pengerjaan
+        </h3>
+        <div id="grid-active" class="grid-3" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;"></div>
+
+        <!-- Section: Selesai -->
+        <h3 class="section-title">
+          <svg width="22" height="22" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Sudah Selesai
+        </h3>
+        <div id="grid-done" class="grid-3" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="sidebar.js"></script>
+  <script>
+    (async () => {
+      if (!requireAuth()) return;
+      await renderSidebar('laporan');
+
+      function parseProjectMeta(raw) {
+        try { return JSON.parse(raw); } catch { return null; }
+      }
+
+      function renderProjectCard(p) {
+        const isDone = p.status === 'done';
+        const meta = parseProjectMeta(p.description);
+        const desc = meta ? (meta.description || 'Tidak ada deskripsi.') : (p.description || 'Tidak ada deskripsi.');
+        const keyInitial = p.key.substring(0, 2);
+        const avatarClass = isDone ? 'proj-avatar done' : 'proj-avatar';
+        const badgeClass = isDone ? 'status-badge done' : 'status-badge active';
+        const badgeText = isDone ? 'Selesai' : 'Aktif';
+        const progressIcon = isDone ? '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>' : '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+
+        return \
+        <a href="board.html?pid=\" style="text-decoration:none; color:inherit; display:block;">
+          <div class="card proj-card" style="padding:0;display:flex;flex-direction:column;height:100%;transition:transform 0.2s, box-shadow 0.2s;">
+            <div style="padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);flex:1;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <div class="\">\</div>
+                  <div>
+                    <div style="font-weight:800;font-size:1rem;color:var(--ocean);line-height:1.2;margin-bottom:0.1rem;">\</div>
+                    <div style="font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:0.4rem;">
+                      <span style="font-weight:600;color:var(--text2);">\</span> \u2022 \
+                    </div>
+                  </div>
+                </div>
+                <div class="\">\</div>
+              </div>
+              <div class="proj-desc">\</div>
+            </div>
+            <div style="background:#f8fafc;padding:0.75rem 1.25rem;font-size:0.78rem;color:var(--muted);display:flex;justify-content:space-between;align-items:center;border-bottom-left-radius:12px;border-bottom-right-radius:12px;">
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <span style="color:\;font-size:0.9rem;">\</span>
+                <span>\ issue tertunda</span>
+              </div>
+              <div style="font-weight:600;color:var(--text2);">
+                \ total
+              </div>
+            </div>
+          </div>
+        </a>\;
+      }
+
+      try {
+        const projects = await apiFetch('/projects');
+        const activeProjects = projects.filter(p => p.status !== 'done');
+        const doneProjects = projects.filter(p => p.status === 'done');
+
+        document.getElementById('count-active').textContent = activeProjects.length;
+        document.getElementById('count-done').textContent = doneProjects.length;
+
+        const gridActive = document.getElementById('grid-active');
+        const gridDone = document.getElementById('grid-done');
+
+        if (activeProjects.length > 0) {
+          gridActive.innerHTML = activeProjects.map(renderProjectCard).join('');
+        } else {
+          gridActive.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:2rem;text-align:center;background:#fff;border-radius:12px;border:1px dashed #cbd5e1;"><div style="margin-bottom:0.5rem;"><svg width="32" height="32" fill="none" stroke="#0284c7" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><p style="color:var(--muted);font-size:0.9rem;margin:0;">Tidak ada proyek yang sedang dikerjakan.</p></div>`;
+        }
+
+        if (doneProjects.length > 0) {
+          gridDone.innerHTML = doneProjects.map(renderProjectCard).join('');
+        } else {
+          gridDone.innerHTML = `<div class="empty-state" style="grid-column:1/-1;padding:2rem;text-align:center;background:#fff;border-radius:12px;border:1px dashed #cbd5e1;"><div style="margin-bottom:0.5rem;"><svg width="32" height="32" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><p style="color:var(--muted);font-size:0.9rem;margin:0;">Belum ada proyek yang diselesaikan.</p></div>`;
+        }
+      } catch(e) {
+        showToast(e.message, 'error');
+      }
+    })();
+  </script>
+</body>
+</html>

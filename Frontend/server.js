@@ -139,6 +139,15 @@ app.put('/api/projects/:id', auth, wrap(async (req, res) => {
   res.json(await db.get('SELECT * FROM projects WHERE id=?', [req.params.id]));
 }));
 
+app.post('/api/projects/:id/complete', auth, wrap(async (req, res) => {
+  const pendingIssues = await db.get("SELECT COUNT(*) as c FROM issues WHERE project_id=? AND status!='done'", [req.params.id]);
+  if (pendingIssues.c > 0) {
+    return res.status(400).json({ error: `Terdapat ${pendingIssues.c} issue yang belum berstatus "Done". Silakan selesaikan semua issue terlebih dahulu.` });
+  }
+  await db.run("UPDATE projects SET status='done', updated_at=? WHERE id=?", [new Date().toISOString(), req.params.id]);
+  res.json({ success: true });
+}));
+
 app.delete('/api/projects/:id', auth, wrap(async (req, res) => {
   // Delete activity_log first (no CASCADE defined on project_id FK)
   await db.run('DELETE FROM activity_log WHERE project_id=?', [req.params.id]);
