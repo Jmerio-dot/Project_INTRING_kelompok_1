@@ -37,4 +37,4 @@ EXPOSE 8000
 
 # Set WORKDIR ke Backend karena manage.py ada di sana
 WORKDIR /app/Backend
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--access-log", "-", "intring_backend.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--access-logfile", "-", "intring_backend.wsgi:application"]
