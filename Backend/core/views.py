@@ -779,9 +779,11 @@ class ExternalSubmissionView(APIView):
 
         sub = TeamSubmission.objects.create(
             project=project,
-            phase=phase,
+            team_name=phase,
+            title=file_obj.name,
+            original_filename=file_obj.name,
             file_path=file_obj,
-            uploaded_by=user
+            submitted_by=user
         )
         return Response({'success': True, 'submission_id': sub.id})
 
