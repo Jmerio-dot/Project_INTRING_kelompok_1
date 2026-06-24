@@ -907,7 +907,14 @@ class ICIssueUpdateAPIView(APIView):
         c_status = issue.creation_status or {}
         if 'evidence_file' in request.FILES:
             file_obj = request.FILES['evidence_file']
-            attachment = Attachment.objects.create(issue=issue, user=issue.reporter or User.objects.first(), file=file_obj)
+            attachment = Attachment.objects.create(
+                issue=issue,
+                user=issue.reporter or User.objects.first(),
+                file=file_obj,
+                original_name=file_obj.name,
+                mimetype=file_obj.content_type or 'application/octet-stream',
+                size=file_obj.size,
+            )
             c_status['evidence_file'] = attachment.file.url
         if 'realization_status' in request.data:
             c_status['progress'] = int(request.data['realization_status'])
