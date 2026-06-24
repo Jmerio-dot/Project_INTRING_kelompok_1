@@ -886,11 +886,11 @@ class ICIssueDetailAPIView(APIView):
                 'assignee_name': issue.assignee.name if issue.assignee else 'Unassigned',
             },
             'c_status': {
-                'realization_status': c_status_data.get('realization_status', 0),
-                'development_constraints': c_status_data.get('development_constraints', ''),
+                'realization_status': c_status_data.get('progress', c_status_data.get('realization_status', 0)),
+                'development_constraints': c_status_data.get('constraints', c_status_data.get('development_constraints', '')),
                 'evidence_file': c_status_data.get('evidence_file', ''),
             },
-            'orchestrations': c_status_data.get('orchestrations', []),
+            'orchestrations': c_status_data.get('orchestration', c_status_data.get('orchestrations', [])),
             'mo': issue.meaningful_objectives or {},
             'ie': issue.intelligence_experience or {},
             'ii': issue.intelligence_implementation or {},
@@ -910,9 +910,15 @@ class ICIssueUpdateAPIView(APIView):
             attachment = Attachment.objects.create(issue=issue, user=issue.reporter or User.objects.first(), file=file_obj)
             c_status['evidence_file'] = attachment.file.url
         if 'realization_status' in request.data:
-            c_status['realization_status'] = int(request.data['realization_status'])
+            c_status['progress'] = int(request.data['realization_status'])
         if 'development_constraints' in request.data:
-            c_status['development_constraints'] = request.data['development_constraints']
+            c_status['constraints'] = request.data['development_constraints']
+        if 'orchestrations' in request.data:
+            import json
+            try:
+                c_status['orchestration'] = json.loads(request.data['orchestrations'])
+            except:
+                pass
         issue.creation_status = c_status
         issue.save()
         return Response({'status': 'success', 'c_status': c_status})
