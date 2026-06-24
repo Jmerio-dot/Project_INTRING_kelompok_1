@@ -55,8 +55,11 @@ urlpatterns = [
     # 🔍 Search (Praktikum 6) ────────────────────────────────────────────────────────
     path('search',        views.SearchView.as_view(),       name='search'),
 
-    # 🌟 Intelligence Creation API ────────────────────────────────────────────────
+    # 🤖 Intelligence Creation API ──────────────────────────────────────────────
     path('integration/send-to-creation', views.SendToCreationWebhook.as_view(), name='webhook_send_creation'),
+    path('integration/ic-projects',      views.ICProjectsAPIView.as_view(),     name='ic_projects'),
+    path('integration/ic-issues/<int:pk>', views.ICIssueDetailAPIView.as_view(), name='ic_issue_detail'),
+    path('integration/ic-issues/<int:pk>/update', views.ICIssueUpdateAPIView.as_view(), name='ic_issue_update'),
 
     # 🌟 Team Submissions & Client Reports ────────────────────────────────────────
     path('projects/<int:pk>/submissions', views.TeamSubmissionListCreateView.as_view(), name='project_submissions'),

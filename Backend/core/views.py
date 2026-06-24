@@ -842,3 +842,78 @@ class PublicClientReportView(APIView):
             'report': ClientReportSerializer(report, context={'request': request}).data,
             'submissions': TeamSubmissionSerializer(subs, many=True, context={'request': request}).data
         })
+
+
+class ICProjectsAPIView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        token = request.query_params.get('token')
+        if token != 'INTRING_SECRET_123':
+            return Response({'error': 'Unauthorized'}, status=401)
+        projects = Project.objects.all().prefetch_related('issues', 'issues__assignee', 'issues__reporter')
+        data = []
+        for p in projects:
+            issues_list = []
+            for i in p.issues.all():
+                issues_list.append({
+                    'id': i.id, 'key': i.issue_key, 'title': i.title,
+                    'status': i.status or 'To Do', 'priority': i.priority or 'Medium',
+                    'assignee': i.assignee.get_full_name() if i.assignee else 'Belum ditugaskan',
+                    'reporter': i.reporter.get_full_name() if i.reporter else 'Demo User',
+                    'description': i.description or ''
+                })
+            data.append({
+                'id': p.id, 'project_name': p.name, 'description': p.description,
+                'status': p.status, 'visibility': p.type, 'issues': issues_list
+            })
+        return Response(data)
+
+class ICIssueDetailAPIView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, pk):
+        token = request.query_params.get('token')
+        if token != 'INTRING_SECRET_123':
+            return Response({'error': 'Unauthorized'}, status=401)
+        issue = generics.get_object_or_404(Issue.objects.select_related('assignee', 'reporter', 'sprint', 'project'), pk=pk)
+        c_status_data = issue.creation_status or {}
+        data = {
+            'issue': {
+                'id': issue.id, 'issue_key': issue.issue_key, 'title': issue.title,
+                'description': issue.description, 'project_name': issue.project.name,
+                'reporter_name': issue.reporter.get_full_name() if issue.reporter else 'Demo User',
+                'created_at': issue.created_at, 'updated_at': issue.updated_at,
+                'priority': issue.priority, 'type': issue.type,
+                'assignee_name': issue.assignee.get_full_name() if issue.assignee else 'Unassigned',
+            },
+            'c_status': {
+                'realization_status': c_status_data.get('realization_status', 0),
+                'development_constraints': c_status_data.get('development_constraints', ''),
+                'evidence_file': c_status_data.get('evidence_file', ''),
+            },
+            'orchestrations': c_status_data.get('orchestrations', []),
+            'mo': issue.meaningful_objectives or {},
+            'ie': issue.intelligence_experience or {},
+            'ii': issue.intelligence_implementation or {},
+        }
+        return Response(data)
+
+class ICIssueUpdateAPIView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, pk):
+        token = request.query_params.get('token')
+        if token != 'INTRING_SECRET_123':
+            return Response({'error': 'Unauthorized'}, status=401)
+        issue = generics.get_object_or_404(Issue, pk=pk)
+        c_status = issue.creation_status or {}
+        if 'evidence_file' in request.FILES:
+            file_obj = request.FILES['evidence_file']
+            attachment = Attachment.objects.create(issue=issue, user=issue.reporter or User.objects.first(), file=file_obj)
+            c_status['evidence_file'] = attachment.file.url
+        if 'realization_status' in request.data:
+            c_status['realization_status'] = int(request.data['realization_status'])
+        if 'development_constraints' in request.data:
+            c_status['development_constraints'] = request.data['development_constraints']
+        issue.creation_status = c_status
+        issue.save()
+        return Response({'status': 'success', 'c_status': c_status})
+
