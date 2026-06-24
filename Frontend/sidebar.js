@@ -1,4 +1,4 @@
-﻿// â”€â”€ sidebar.js â€” enhanced sidebar renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€ sidebar.js â€” enhanced sidebar renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function isSidebarCollapsed() {
   return localStorage.getItem('ie_sidebar_collapsed') === 'true';
@@ -123,13 +123,13 @@ async function loadSidebarProjects(activePid) {
         <div class="sb-proj-header" onclick="toggleProjectMenu(${p.id})">
           <span class="sb-proj-key">${p.key.substring(0, 3)}</span>
           <span class="sb-proj-name">${p.name}</span>
-          <span class="sb-proj-chevron" id="chevron-${p.id}">â€º</span>
+          <span class="sb-proj-chevron" id="chevron-${p.id}">&rsaquo;</span>
         </div>
         <div class="sb-proj-menu" id="proj-menu-${p.id}" style="display:${activePid == p.id ? 'flex' : 'none'};">
-          <a href="board.html?pid=${p.id}" class="sb-proj-link">ðŸ—‚ï¸ Board</a>
-          <a href="backlog.html?pid=${p.id}" class="sb-proj-link">ðŸ“‹ Backlog</a>
-          <a href="transcript.html?pid=${p.id}" class="sb-proj-link">ðŸ“„ Transcript</a>
-          <a href="submissions.html?pid=${p.id}" class="sb-proj-link">ðŸ“¦ Pengumpulan</a>
+          <a href="board.html?pid=${p.id}" class="sb-proj-link">&#x1F5C2;&#xFE0F; Board</a>
+          <a href="backlog.html?pid=${p.id}" class="sb-proj-link">&#x1F4CB; Backlog</a>
+          <a href="transcript.html?pid=${p.id}" class="sb-proj-link">&#x1F4C4; Transcript</a>
+          <a href="submissions.html?pid=${p.id}" class="sb-proj-link">&#x1F4E6; Pengumpulan</a>
         </div>
       </div>
     `).join('');
