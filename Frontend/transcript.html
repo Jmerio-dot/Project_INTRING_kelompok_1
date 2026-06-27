@@ -368,6 +368,17 @@
               </div>
             </div>
 
+            <!-- Creation Integration -->
+            <div class="ctrl-card">
+              <div class="ctrl-card-header">🌐 Integrasi Creation</div>
+              <div class="ctrl-card-body" style="text-align: center;">
+                <p style="font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem;">Kirim transkrip ini sebagai tiket submission baru ke Creation.</p>
+                <button class="btn-download" id="btn-submit-creation" onclick="submitToCreation()" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                  ✨ Submit ke Creation
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
       </div><!-- /main-content -->
@@ -811,6 +822,70 @@
     document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
   }
+
+  // ✨ Submit to Creation ✨
+  window.submitToCreation = async function() {
+    const btn = document.getElementById('btn-submit-creation');
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+
+    // Inject temporary print styles (same as download PDF)
+    const printStyle = document.createElement('style');
+    printStyle.innerHTML = `
+      #paper-page { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; min-height: auto !important; padding: 0 !important; box-shadow: none !important; background: #ffffff !important; color: #000000 !important; margin: 0 !important; transform: none !important; word-wrap: break-word !important; word-break: normal !important; overflow-wrap: break-word !important; }
+      .tr-row { display: block !important; margin-bottom: 12px !important; max-width: 100% !important; page-break-inside: avoid !important; }
+      .tr-label { display: block !important; font-weight: bold !important; color: #444 !important; margin-bottom: 4px !important; font-style: normal !important; page-break-after: avoid !important; }
+      .tr-value { display: block !important; color: #000 !important; line-height: 1.6 !important; max-width: 100% !important; white-space: pre-wrap !important; word-break: normal !important; overflow-wrap: break-word !important; page-break-inside: avoid !important; }
+      .tr-value br { display: block !important; content: "" !important; margin-bottom: 4px !important; }
+      .tr-value b, .tr-value strong { color: #222 !important; }
+      .tr-main-title { color: #000 !important; letter-spacing: 0 !important; border-bottom: 2px solid #000 !important; padding-bottom: 10px !important; margin-bottom: 20px !important; }
+    `;
+    document.head.appendChild(printStyle);
+
+    try {
+      const element = document.getElementById('paper-page');
+      const safeName = (project.name || 'Project').replace(/[^a-z0-9]/gi, '_');
+      
+      const opt = {
+        margin:       [0.5, 0.5, 0.5, 0.5],
+        filename:     `transcript_${safeName}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      if (typeof html2pdf === 'undefined') throw new Error('Library PDF belum dimuat. Coba refresh halaman.');
+      
+      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+      
+      const formData = new FormData();
+      formData.append('source_file', pdfBlob, `Transcript_${safeName}.pdf`);
+      formData.append('title', `[IntRing] Transkrip Project ${project.name}`);
+      formData.append('description', 'Auto-submitted transcript from Intelligence Engineering.\\n' + (project.description || ''));
+      formData.append('contact_email', '');
+      formData.append('urgency', 'high');
+      formData.append('sender_name', user.name || 'IE Project Manager');
+      formData.append('sender_team', 'Intelligence Engineering');
+
+      const res = await fetch('/creation/api/v2/submissions/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || 'Gagal mengirim ke Creation.');
+      }
+      
+      showToast('Berhasil dikirim ke Creation!');
+    } catch(e) {
+      showToast('Gagal mengirim: ' + e.message, 'error');
+    } finally {
+      document.head.removeChild(printStyle);
+      btn.disabled = false;
+      btn.innerHTML = '✨ Submit ke Creation';
+    }
+  };
 
 })();
 </script>
